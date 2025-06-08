@@ -1,7 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Sparkles, ChevronLeft, ChevronRight, Home, Volume2 } from 'lucide-react';
 
-const StoryViewer = ({ story, onClose }) => {
+const StoryViewer = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const story = location.state?.story;
+    
+    if (!story) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-yellow-300 flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl shadow-2xl p-8">
+                    <h2 className="text-2xl font-bold text-gray-800">Story not found</h2>
+                    <button
+                        onClick={() => navigate('/create')}
+                        className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl"
+                    >
+                        Create a new story
+                    </button>
+                </div>
+            </div>
+        );
+    }
     const [currentSpread, setCurrentSpread] = useState(0);
     const [isReading, setIsReading] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
@@ -86,9 +106,8 @@ const StoryViewer = ({ story, onClose }) => {
                 </div>
                 <div className="text-white font-medium">
                     {pageDisplay}
-                </div>
-                <button
-                    onClick={onClose}
+                </div>                <button
+                    onClick={() => navigate('/create')}
                     className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
                 >
                     <Home className="w-5 h-5 text-white" />
