@@ -1,51 +1,55 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://j0vecnx5vh.execute-api.us-east-2.amazonaws.com/Prod';
 
-export const getStories = async (token) => {
-    // const response = await fetch(`${API_URL}/stories`, {
-    //     headers: {
-    //         'Authorization': `Bearer ${token}`,
-    //     },
-    // });
+export const getStories = async (token, username) => {    try {
+        const response = await fetch(`${API_URL}/GetStories`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({
+                username: username
+            })
+        });
 
-    const response = {
-        "ok": true,
-        "stories": [
-            {
-                "id": "1",
-                "title": "Sample Story",
-                "createdAt": "2023-10-01T12:00:00Z",
-                "pages": [
-                    {
-                        "id": "1",
-                        "content": "Once upon a time...",
-                        "order": 1
-                    },
-                    {
-                        "id": "2",
-                        "content": "And they lived happily ever after.",
-                        "order": 2
-                    }
-                ]
-            }]
-    };
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch stories');
+        const data = await response.json();
+        
+        // API Gateway returns response wrapped in body
+        if (data.body) {
+            const parsedBody = JSON.parse(data.body);
+            return parsedBody.stories || [];
+        }
+        
+        return data.stories || [];
+    } catch (error) {
+        console.error('Error fetching stories:', error);
+        throw error;
     }
-
-    return response.stories;
 };
 
 export const getStory = async (token, storyId) => {
-    const response = await fetch(`${API_URL}/stories/${storyId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-    });
+    try {
+        const response = await fetch(`${API_URL}/GetStory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                storyId: storyId
+            })
+        });
 
-    if (!response.ok) {
+        const data = await response.json();
+        
+        // API Gateway returns response wrapped in body
+        if (data.body) {
+            return JSON.parse(data.body);
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error fetching story:', error);
         throw new Error('Failed to fetch story');
     }
-
-    return response.json();
 };

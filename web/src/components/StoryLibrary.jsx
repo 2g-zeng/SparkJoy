@@ -9,12 +9,17 @@ const StoryLibrary = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
-
-    useEffect(() => {
+    const navigate = useNavigate();      useEffect(() => {
         const fetchStories = async () => {
+            if (!user || !user.username) {
+                setError("No user found");
+                setLoading(false);
+                return;
+            }
+            
             try {
-                const data = await getStories(user.username);
+                // Guest users don't have a token, so we'll pass null for token
+                const data = await getStories(null, user.username);
                 setStories(data);
                 setLoading(false);
             } catch (err) {
@@ -24,7 +29,7 @@ const StoryLibrary = () => {
         };
 
         fetchStories();
-    }, [user.username]);
+    }, [user]);
 
     if (loading) {
         return (
