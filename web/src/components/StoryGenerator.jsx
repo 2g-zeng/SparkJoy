@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Upload, Wand2 } from 'lucide-react';
+import { HiOutlineSparkles } from "react-icons/hi2";
 
 const StoryGenerator = () => {
   const navigate = useNavigate();
@@ -118,18 +119,19 @@ const StoryGenerator = () => {
               </svg>
               <span className="text-gray-600 font-semibold text-md">No ideas? No problem! Leave the fields below blank and we'll conjure up a random magical tale for you.</span>
             </div>
-            <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-3">
-                📝 Share Your Story Ideas
-              </label>
-              <textarea
+            <div className="flex gap-2 items-center">
+              <HiOutlineSparkles style={{ color: 'gold', fontSize: '24px' }} />
+              <span className="text-xl font-semibold text-gray-600">
+                  Share Your Story Ideas
+              </span>
+            </div>
+            <textarea
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
                 placeholder="e.g., A curious cat who discovers a hidden garden, or a little robot learning to make friends ..."
                 className="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors resize-none"
                 rows="4"
               />
-            </div>
             <span className="text-lg font-semibold text-gray-500">
               What adventure should we embark on? Describe a character, a place, or a magical event!
             </span>
