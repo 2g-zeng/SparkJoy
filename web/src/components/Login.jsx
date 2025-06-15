@@ -2,20 +2,29 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Book, Star, Heart, Moon } from 'lucide-react';
 import { AuthContext } from './AuthProvider';
+import { authenticateUser } from '../services/api';
 
 const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
+    const [magicNumber, setMagicNumber] = useState('');
     const { login, loginAsGuest } = useContext(AuthContext);
     const [isAnimating, setIsAnimating] = useState(false);
-
-    const handleLogin = () => {
-        if (username.trim()) {
-            setIsAnimating(true);
-            setTimeout(() => {
-                login(username);
+    const [error, setError] = useState('');    const handleLogin = async () => {
+        setError(''); // Clear any previous errors
+        if (username.trim() && magicNumber.trim()) {
+            try {
+                setIsAnimating(true);
+                const authResult = await authenticateUser(username, magicNumber);
+                login(authResult.username, authResult.token);
                 navigate('/create');
-            }, 500);
+            } catch (error) {
+                setIsAnimating(false);
+                setError('Login failed. Please try again later.');
+                console.error('Login error:', error);
+            }
+        } else {
+            setError('Please enter both name and magic number.');
         }
     };
 
@@ -42,10 +51,24 @@ const Login = () => {
                             placeholder="What's your name?"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            onKeyDown={handleKeyPress}
                             className="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors"
                         />
                     </div>
+                    <div>
+                        <input
+                            type="text"
+                            placeholder="What's your magic number?"
+                            value={magicNumber}
+                            onChange={(e) => setMagicNumber(e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            className="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors"                        />
+                    </div>
+                    {error && (
+                        <div className="text-red-500 text-sm font-semibold text-center p-2 bg-red-50 rounded-lg">
+                            {error}
+                        </div>
+                    )}
                     <button
                         onClick={handleLogin}
                         className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
