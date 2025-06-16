@@ -2,20 +2,20 @@ const API_URL = 'https://j0vecnx5vh.execute-api.us-east-2.amazonaws.com/Prod';
 
 export const authenticateUser = async (username, magicNumber) => {
     try {
-        const response = await fetch(`${API_URL}/Login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username,
-                magic_number: magicNumber
-            })
-        });
-        let data = await response.json();
+        // const response = await fetch(`${API_URL}/Login`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         username: username,
+        //         magic_number: magicNumber
+        //     })
+        // });
+        // let data = await response.json();
 
         // Mock response for debugging
-        data =  {
+        let data =  {
             statusCode: 200,
             body: JSON.stringify({
                 ok: true,
