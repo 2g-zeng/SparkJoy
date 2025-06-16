@@ -12,17 +12,17 @@ export const authenticateUser = async (username, magicNumber) => {
                 magic_number: magicNumber
             })
         });
-        const data = await response.json();
+        let data = await response.json();
 
-        // // Mock response for debugging
-        // let data =  {
-        //     statusCode: 200,
-        //     body: JSON.stringify({
-        //         ok: true,
-        //         token: '38f1c9b7-9294-4d3c-9239-7e8491f9921c',
-        //         username: username
-        //     })
-        // };
+        // Mock response for debugging
+        data =  {
+            statusCode: 200,
+            body: JSON.stringify({
+                ok: true,
+                token: '38f1c9b7-9294-4d3c-9239-7e8491f9921c',
+                username: username
+            })
+        };
 
         // API Gateway returns response wrapped in body
         if (data.body) {
