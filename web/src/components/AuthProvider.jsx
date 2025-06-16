@@ -3,10 +3,13 @@ import React, { createContext, useState } from 'react'
 export const AuthContext = createContext()
 
 const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null)
-
-    const login = (username) => {
-        const userData = { username, id: Date.now() }
+    const [user, setUser] = useState(null)    
+    const login = (username, token) => {
+        const userData = { 
+            username,
+            token,
+            id: Date.now()
+        }
         setUser(userData)
     }
 

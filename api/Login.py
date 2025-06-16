@@ -9,30 +9,48 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('SparkJoyUsers')
 
 def create_user_if_not_exists(username, magic_number):
-    """Create a new user if they don't exist, or validate magic number if they do"""
+    """Create a new user if they don't exist, or validate magic number if they do.
+    Returns (success, error_message, token)"""
     try:
+        # Generate a new token
+        new_token = str(uuid.uuid4())
+        
         # Try to get the user
         response = table.get_item(
             Key={
                 'username': username
             }
         )
-        
-        # If user exists, validate magic number
+          # If user exists
         if 'Item' in response:
             stored_magic_number = response['Item']['magic_number']
-            if stored_magic_number != magic_number:
-                return False, "Invalid magic number"
-            return True, None
-              # If user doesn't exist, create new user
+            if stored_magic_number == magic_number:
+                # Return existing token if magic number matches
+                stored_token = response['Item'].get('token')
+                if stored_token:
+                    return True, None, stored_token
+                
+                # Update with new token if none exists
+                table.update_item(
+                    Key={'username': username},
+                    UpdateExpression='SET token = :token',
+                    ExpressionAttributeValues={':token': new_token}
+                )
+                return True, None, new_token
+            else:
+                # Create new entry with username + number combination
+                username = f"{username}_{str(uuid.uuid4())[:8]}"
+        
+        # Create new user entry
         table.put_item(
             Item={
                 'username': username,
                 'magic_number': magic_number,
+                'token': new_token,
                 'created_at': datetime.now().isoformat()
             }
         )
-        return True, None
+        return True, None, new_token
         
     except ClientError as e:
         print(f"DynamoDB error: {str(e)}")
@@ -65,9 +83,9 @@ def lambda_handler(event, context):
                     'error': 'Username and magic number are required'
                 })
             }
-
-        # Validate or create user
-        success, error_message = create_user_if_not_exists(username, magic_number)
+        
+        success, error_message, token = create_user_if_not_exists(username, magic_number)
+        
         if not success:
             return {
                 'statusCode': 401,
@@ -81,9 +99,6 @@ def lambda_handler(event, context):
                     'error': error_message
                 })
             }
-
-        # Generate a random token
-        token = str(uuid.uuid4())
 
         return {
             'statusCode': 200,
