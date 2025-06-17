@@ -20,11 +20,11 @@ def create_user_if_not_exists(username, magic_number):
             Key={
                 'username': username
             }
-        )
-          # If user exists
+        )          # If user exists
         if 'Item' in response:
-            stored_magic_number = response['Item']['magic_number']
-            if stored_magic_number == magic_number:
+            print(response['Item'])
+            stored_magic_number = str(response['Item']['magic_number'])
+            if stored_magic_number == str(magic_number):
                 # Return existing token if magic number matches
                 stored_token = response['Item'].get('token')
                 if stored_token:
@@ -37,15 +37,12 @@ def create_user_if_not_exists(username, magic_number):
                     ExpressionAttributeValues={':token': new_token}
                 )
                 return True, None, new_token
-            else:
-                # Create new entry with username + number combination
-                username = f"{username}_{str(uuid.uuid4())[:8]}"
         
-        # Create new user entry
+        # Create new user entry        
         table.put_item(
             Item={
                 'username': username,
-                'magic_number': magic_number,
+                'magic_number': str(magic_number),
                 'token': new_token,
                 'created_at': datetime.now().isoformat()
             }
