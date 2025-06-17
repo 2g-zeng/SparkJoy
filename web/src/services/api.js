@@ -2,27 +2,27 @@ const API_URL = 'https://j0vecnx5vh.execute-api.us-east-2.amazonaws.com/Prod';
 
 export const authenticateUser = async (username, magicNumber) => {
     try {
-        // const response = await fetch(`${API_URL}/Login`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         username: username,
-        //         magic_number: magicNumber
-        //     })
-        // });
-        // let data = await response.json();
+        const response = await fetch(`${API_URL}/Login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                magic_number: magicNumber
+            })
+        });
+        let data = await response.json();
 
         // Mock response for debugging
-        let data =  {
-            statusCode: 200,
-            body: JSON.stringify({
-                ok: true,
-                token: '38f1c9b7-9294-4d3c-9239-7e8491f9921c',
-                username: username
-            })
-        };
+        // let data =  {
+        //     statusCode: 200,
+        //     body: JSON.stringify({
+        //         ok: true,
+        //         token: '38f1c9b7-9294-4d3c-9239-7e8491f9921c',
+        //         username: username
+        //     })
+        // };
 
         // API Gateway returns response wrapped in body
         if (data.body) {
