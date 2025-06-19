@@ -7,29 +7,106 @@ const StoryViewer = () => {
     const navigate = useNavigate();
     const story = location.state?.story;
     
-    if (!story) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-yellow-300 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl shadow-2xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-800">Story not found</h2>
-                    <button
-                        onClick={() => navigate('/create')}
-                        className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl"
-                    >
-                        Create a new story
-                    </button>
-                </div>
-            </div>
-        );
-    }
     const [currentSpread, setCurrentSpread] = useState(0);
     const [isReading, setIsReading] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
+    const [audioPlayer, setAudioPlayer] = useState(null);
 
+    // Create pages array with cover page
     const allPages = [
-        { pageNumber: 0, text: "", illustration: "cover", isCover: true },
-        ...story.pages
+        {
+            pageNumber: 0,
+            text: "",
+            illustration: story?.pages[0]?.illustration || "cover",
+            isCover: true,
+            title: story?.title
+        },
+        ...(story?.pages || [])
     ];
+
+    // Number of actual page spreads (excluding cover)
+    const totalSpreads = Math.ceil((allPages.length - 1) / 2);
+
+    // Handle page navigation
+    const goToSpread = (spread) => {
+        if (spread >= 0 && spread < totalSpreads) {
+            // Stop current audio when changing pages
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+            setIsFlipping(true);
+            setCurrentSpread(spread);
+            setTimeout(() => setIsFlipping(false), 500);
+        }
+    };
+
+    // Handle audio playback
+    const handleSpeak = () => {
+        const currentPages = getCurrentSpreadPages();
+
+        if (isReading) {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+            setIsReading(false);
+            return;
+        }
+
+        // Use AI-generated audio if available, otherwise use text-to-speech
+        const pageWithAudio = currentPages.find(page => page.audioUrl);
+        if (pageWithAudio?.audioUrl) {
+            const audio = new Audio(pageWithAudio.audioUrl);
+            audio.onended = () => {
+                setIsReading(false);
+                setAudioPlayer(null);
+            };
+            audio.play();
+            setAudioPlayer(audio);
+            setIsReading(true);
+        } else {
+            // Fallback to browser's text-to-speech
+            if (!window.speechSynthesis) return;
+
+            const textToRead = currentPages
+                .map(page => page.text)
+                .filter(Boolean)
+                .join(". ");
+
+            if (!textToRead) return;
+
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            utterance.onend = () => setIsReading(false);
+
+            setIsReading(true);
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
+    // Get current spread pages
+    const getCurrentSpreadPages = () => {
+        if (currentSpread === 0) {
+            return [allPages[0]];
+        }
+        const startIdx = (currentSpread * 2) - 1;
+        return allPages.slice(startIdx, startIdx + 2);
+    };
+
+    // Clean up audio on unmount
+    useEffect(() => {
+        return () => {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, [audioPlayer]);
 
     const leftPageIndex = currentSpread * 2;
     const rightPageIndex = currentSpread * 2 + 1;
@@ -53,27 +130,6 @@ const StoryViewer = () => {
                 setCurrentSpread(currentSpread - 1);
                 setIsFlipping(false);
             }, 300);
-        }
-    };
-
-    const readAloud = () => {
-        if ('speechSynthesis' in window) {
-            if (isReading) {
-                window.speechSynthesis.cancel();
-                setIsReading(false);
-            } else {
-                let textToRead = '';
-                if (leftPage && !leftPage.isCover) textToRead += leftPage.text + ' ';
-                if (rightPage && !rightPage.isCover) textToRead += rightPage.text;
-                if (textToRead) {
-                    const utterance = new SpeechSynthesisUtterance(textToRead);
-                    utterance.rate = 0.8;
-                    utterance.pitch = 1.2;
-                    utterance.onend = () => setIsReading(false);
-                    window.speechSynthesis.speak(utterance);
-                    setIsReading(true);
-                }
-            }
         }
     };
 
@@ -106,7 +162,8 @@ const StoryViewer = () => {
                 </div>
                 <div className="text-white font-medium">
                     {pageDisplay}
-                </div>                <button
+                </div>                
+                <button
                     onClick={() => navigate('/create')}
                     className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
                 >
@@ -202,7 +259,7 @@ const StoryViewer = () => {
                 </button>
                 <div className="flex items-center space-x-4">
                     <button
-                        onClick={readAloud}
+                        onClick={handleSpeak}
                         className={`p-3 rounded-full transition-all transform ${isReading
                             ? 'bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg'
                             : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:scale-105'

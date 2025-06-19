@@ -14,16 +14,6 @@ export const authenticateUser = async (username, magicNumber) => {
         });
         let data = await response.json();
 
-        // Mock response for debugging
-        // let data =  {
-        //     statusCode: 200,
-        //     body: JSON.stringify({
-        //         ok: true,
-        //         token: '38f1c9b7-9294-4d3c-9239-7e8491f9921c',
-        //         username: username
-        //     })
-        // };
-
         // API Gateway returns response wrapped in body
         if (data.body) {
             const parsedBody = JSON.parse(data.body);
@@ -100,5 +90,55 @@ export const getStory = async (token, storyId) => {
     } catch (error) {
         console.error('Error fetching story:', error);
         throw new Error('Failed to fetch story');
+    }
+};
+
+export const generateStory = async (token, instructions, images = []) => {
+    try {
+        // Convert images to base64 if they aren't already
+        const processedImages = await Promise.all(
+            images.map(async (img) => {
+                if (typeof img === 'string' && img.startsWith('data:')) {
+                    return img; // Already base64
+                }
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(img);
+                });
+            })
+        );
+
+        const response = await fetch(`${API_URL}/GenerateStory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                token,
+                instructions,
+                images: processedImages
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate story');
+        }
+
+        const data = await response.json();
+        
+        // API Gateway returns response wrapped in body
+        if (data.body) {
+            const parsedBody = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+            return parsedBody.story;
+        }
+        
+        return data.story;
+    } catch (error) {
+        console.error('Error generating story:', error);
+        throw new Error(error.message || 'Failed to generate story');
     }
 };
