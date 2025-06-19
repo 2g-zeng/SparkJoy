@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronLeft, ChevronRight, Home, Volume2 } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, Home, Volume2, Save } from 'lucide-react';
+import { AuthContext } from './AuthProvider';
+import { saveStory } from '../services/api';
 
 const StoryViewer = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const story = location.state?.story;
     
     const [currentSpread, setCurrentSpread] = useState(0);
     const [isReading, setIsReading] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
     const [audioPlayer, setAudioPlayer] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setError] = useState('');
 
     // Create pages array with cover page
     const allPages = [
@@ -153,6 +158,31 @@ const StoryViewer = () => {
         (pageNumbers.length === 1 ? `Page ${pageNumbers[0]}` : `Page ${pageNumbers[0]}/${pageNumbers[1]}`) :
         'Cover';
 
+    // Handle save story
+    const handleSaveStory = async () => {
+        try {
+            setIsSaving(true);
+            setError('');
+            await saveStory(user.token, story);
+            // Show success feedback
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-out';
+            notification.textContent = 'Story saved successfully!';
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } catch (error) {
+            setError(error.message);
+            // Show error feedback
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-out';
+            notification.textContent = error.message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-gray-100 z-50 overflow-hidden">
             {/* Header bar */}
@@ -163,12 +193,21 @@ const StoryViewer = () => {
                 <div className="text-white font-medium">
                     {pageDisplay}
                 </div>                
-                <button
-                    onClick={() => navigate('/create')}
-                    className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
-                >
-                    <Home className="w-5 h-5 text-white" />
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleSaveStory}
+                        disabled={isSaving}
+                        className={`bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        <Save className={`w-5 h-5 text-white ${isSaving ? 'animate-pulse' : ''}`} />
+                    </button>
+                    <button
+                        onClick={() => navigate('/create')}
+                        className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
+                    >
+                        <Home className="w-5 h-5 text-white" />
+                    </button>
+                </div>
             </div>
             {/* Book container */}
             <div className="h-full pt-16 pb-20 flex items-center justify-center px-4">
@@ -271,17 +310,30 @@ const StoryViewer = () => {
                         {pageDisplay} of {story.pages.length}
                     </div>
                 </div>
-                <button
-                    onClick={nextSpread}
-                    disabled={rightPageIndex >= allPages.length - 1}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${rightPageIndex >= allPages.length - 1
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-105'
-                        }`}
-                >
-                    <span className="font-medium">Next</span>
-                    <ChevronRight className="w-6 h-6" />
-                </button>
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={handleSaveStory}
+                        disabled={isSaving}
+                        className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${isSaving
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-green-400 to-blue-500 text-white hover:shadow-lg hover:scale-105'
+                            }`}
+                    >
+                        <Save className="w-6 h-6" />
+                        <span className="font-medium">{isSaving ? 'Saving...' : 'Save'}</span>
+                    </button>
+                    <button
+                        onClick={nextSpread}
+                        disabled={rightPageIndex >= allPages.length - 1}
+                        className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${rightPageIndex >= allPages.length - 1
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-105'
+                            }`}
+                    >
+                        <span className="font-medium">Next</span>
+                        <ChevronRight className="w-6 h-6" />
+                    </button>
+                </div>
             </div>
         </div>
     );

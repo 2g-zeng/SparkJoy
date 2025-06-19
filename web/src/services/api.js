@@ -142,3 +142,37 @@ export const generateStory = async (token, instructions, images = []) => {
         throw new Error(error.message || 'Failed to generate story');
     }
 };
+
+export const saveStory = async (token, story) => {
+    try {
+        const response = await fetch(`${API_URL}/SaveStory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                token,
+                story
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to save story');
+        }
+
+        const data = await response.json();
+        
+        // API Gateway returns response wrapped in body
+        if (data.body) {
+            const parsedBody = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+            return parsedBody;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error saving story:', error);
+        throw new Error(error.message || 'Failed to save story');
+    }
+};
