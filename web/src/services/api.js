@@ -143,7 +143,7 @@ export const generateStory = async (token, instructions, images = []) => {
     }
 };
 
-export const saveStory = async (token, story) => {
+export const saveStory = async (token, story, username) => {
     try {
         const response = await fetch(`${API_URL}/SaveStory`, {
             method: 'POST',
@@ -153,7 +153,8 @@ export const saveStory = async (token, story) => {
             },
             body: JSON.stringify({
                 token,
-                story
+                story,
+                username
             })
         });
 
