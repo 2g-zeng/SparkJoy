@@ -38,7 +38,7 @@ const StoryGenerator = () => {
       setIsGenerating(true);
       setGenerationProgress('Starting story generation...');
       
-      const story = await generateStory(user.token, instructions, uploadedImages);
+      const story = await generateStory(user.token, instructions, uploadedImages, user.username);
       
       // Reset form after successful generation
       setInstructions('');

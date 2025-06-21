@@ -95,7 +95,7 @@ export const getStory = async (token, storyId) => {
     }
 };
 
-export const generateStory = async (token, instructions, images = []) => {
+export const generateStory = async (token, instructions, images = [], username = null) => {
     try {
         // Convert images to base64 if they aren't already
         const processedImages = await Promise.all(
@@ -120,6 +120,7 @@ export const generateStory = async (token, instructions, images = []) => {
             },
             body: JSON.stringify({
                 token,
+                username,
                 instructions,
                 images: processedImages
             })

@@ -10,6 +10,9 @@ const StoryViewer = () => {
     const { user } = useContext(AuthContext);
     const story = location.state?.story;
     
+    // Check if user is authenticated (has a token) or is a guest
+    const isAuthenticated = user && user.token;
+    
     const [currentSpread, setCurrentSpread] = useState(0);
     const [isReading, setIsReading] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
@@ -194,13 +197,15 @@ const StoryViewer = () => {
                     {pageDisplay}
                 </div>                
                 <div className="flex gap-2">
-                    <button
-                        onClick={handleSaveStory}
-                        disabled={isSaving}
-                        className={`bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                        <Save className={`w-5 h-5 text-white ${isSaving ? 'animate-pulse' : ''}`} />
-                    </button>
+                    {isAuthenticated && (
+                        <button
+                            onClick={handleSaveStory}
+                            disabled={isSaving}
+                            className={`bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            <Save className={`w-5 h-5 text-white ${isSaving ? 'animate-pulse' : ''}`} />
+                        </button>
+                    )}
                     <button
                         onClick={() => navigate('/create')}
                         className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
@@ -311,17 +316,19 @@ const StoryViewer = () => {
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <button
-                        onClick={handleSaveStory}
-                        disabled={isSaving}
-                        className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${isSaving
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-green-400 to-blue-500 text-white hover:shadow-lg hover:scale-105'
-                            }`}
-                    >
-                        <Save className="w-6 h-6" />
-                        <span className="font-medium">{isSaving ? 'Saving...' : 'Save'}</span>
-                    </button>
+                    {isAuthenticated && (
+                        <button
+                            onClick={handleSaveStory}
+                            disabled={isSaving}
+                            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${isSaving
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-green-400 to-blue-500 text-white hover:shadow-lg hover:scale-105'
+                                }`}
+                        >
+                            <Save className="w-6 h-6" />
+                            <span className="font-medium">{isSaving ? 'Saving...' : 'Save'}</span>
+                        </button>
+                    )}
                     <button
                         onClick={nextSpread}
                         disabled={rightPageIndex >= allPages.length - 1}
