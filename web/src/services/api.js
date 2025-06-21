@@ -39,7 +39,8 @@ export const authenticateUser = async (username, magicNumber) => {
     }
 }
 
-export const getStories = async (token, username) => {    try {
+export const getStories = async (token, username) => {    
+    try {
         const response = await fetch(`${API_URL}/GetStories`, {
             method: 'POST',
             headers: {
@@ -47,7 +48,8 @@ export const getStories = async (token, username) => {    try {
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             },
             body: JSON.stringify({
-                username: username
+                username: username,
+                token: token
             })
         });
 

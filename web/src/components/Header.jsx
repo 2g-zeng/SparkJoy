@@ -6,6 +6,9 @@ import { AuthContext } from './AuthProvider';
 const Header = () => {
     const navigate = useNavigate();
     const { user, logout } = useContext(AuthContext);
+    
+    // Check if user is authenticated (has a token) or is a guest
+    const isAuthenticated = user && user.token;
 
     return (
         <div className="bg-white shadow-lg">
@@ -23,16 +26,23 @@ const Header = () => {
                         >
                             Create Story
                         </button>
-                        <button
-                            onClick={() => navigate('/library')}
-                            className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800"
-                        >
-                            Library
-                        </button>
+                        
+                        {/* Only show Library button for authenticated users */}
+                        {isAuthenticated && (
+                            <button
+                                onClick={() => navigate('/library')}
+                                className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800"
+                            >
+                                Library
+                            </button>
+                        )}
                         
                         <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-50">
                             <User className="w-5 h-5 text-purple-500" />
-                            <span className="text-sm font-medium text-purple-700">{user?.username}</span>
+                            <span className="text-sm font-medium text-purple-700">
+                                {user?.username}
+                                {!isAuthenticated && " (Guest)"}
+                            </span>
                         </div>
                         
                         <button
