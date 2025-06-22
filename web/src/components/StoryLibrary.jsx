@@ -3,6 +3,7 @@ import { BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthProvider';
 import { getStories } from '../services/api';
+import Cookies from 'js-cookie';
 
 const StoryLibrary = () => {
     const [stories, setStories] = useState([]);
@@ -12,20 +13,30 @@ const StoryLibrary = () => {
     const navigate = useNavigate();      
     useEffect(() => {
         const fetchStories = async () => {
-            if (!user || !user.username) {
+            // Get authentication data from cookies first
+            const tokenFromCookie = Cookies.get('userToken');
+            const usernameFromCookie = Cookies.get('username');
+            
+            // If there's no username in cookie or context, show error
+            if ((!usernameFromCookie && (!user || !user.username))) {
                 setError("No user found");
                 setLoading(false);
                 return;
             }
             
+            // Use cookie values as priority, fall back to context
+            const username = usernameFromCookie || user.username;
+            const token = tokenFromCookie || user.token;
+            const isGuest = username === 'Guest' || !token;
+            
             try {
-                // If user has token, they're authenticated (non-guest)
-                if (user.token) {
-                    const data = await getStories(user.token, user.username);
+                // If user has token (not a guest), they're authenticated
+                if (!isGuest) {
+                    const data = await getStories(token, username);
                     setStories(data);
                 } else {
                     // Guest users don't have a token, so we'll pass null for token
-                    const data = await getStories(null, user.username);
+                    const data = await getStories(null, username);
                     setStories(data);
                 }
                 setLoading(false);
@@ -64,7 +75,7 @@ const StoryLibrary = () => {
                     <BookOpen className="w-16 h-16 text-purple-300 mx-auto mb-4" />
                     <h3 className="text-2xl font-bold text-gray-600 mb-2">No Stories Yet</h3>
                     <p className="text-gray-500">
-                        {user.token ? 
+                        {Cookies.get('userToken') || user.token ? 
                             "You haven't created any stories yet. Try generating a new story!" :
                             "Guest users can't save stories. Log in to create and save your magical tales!"}
                     </p>
