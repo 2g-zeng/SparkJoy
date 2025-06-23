@@ -77,21 +77,35 @@ export const getStory = async (token, storyId) => {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                storyId: storyId
+                storyId: storyId,
+                token: token
             })
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Failed to fetch story (${response.status})`);
+        }
 
         const data = await response.json();
         
         // API Gateway returns response wrapped in body
         if (data.body) {
-            return JSON.parse(data.body);
+            const parsedBody = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+            if (!parsedBody.ok) {
+                throw new Error(parsedBody.error || 'Failed to fetch story');
+            }
+            return parsedBody.story;
         }
         
-        return data;
+        if (!data.ok) {
+            throw new Error(data.error || 'Failed to fetch story');
+        }
+        
+        return data.story;
     } catch (error) {
         console.error('Error fetching story:', error);
-        throw new Error('Failed to fetch story');
+        throw new Error(error.message || 'Failed to fetch story');
     }
 };
 

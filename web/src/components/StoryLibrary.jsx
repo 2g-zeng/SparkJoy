@@ -2,13 +2,16 @@ import React, { useEffect, useState, useContext } from 'react';
 import { BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthProvider';
-import { getStories } from '../services/api';
+import { getStories, getStory } from '../services/api';
 import Cookies from 'js-cookie';
 
 const StoryLibrary = () => {
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedStoryId, setSelectedStoryId] = useState(null); // Track the selected story for loading state
+    const [isLoadingStory, setIsLoadingStory] = useState(false); // Loading state for story fetch
+    const [storyError, setStoryError] = useState({ id: null, message: '' }); // Track errors for specific stories
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();      
     useEffect(() => {
@@ -65,8 +68,34 @@ const StoryLibrary = () => {
         );
     }
 
-    const handleSelectStory = (story) => {
-        navigate(`/story/${story.id}`);
+    const handleSelectStory = async (story) => {
+        try {
+            // Clear any previous errors
+            setStoryError({ id: null, message: '' });
+            
+            // Set loading states
+            setIsLoadingStory(true);
+            setSelectedStoryId(story.id);
+            
+            // Get authentication data from cookies first, fall back to context
+            const token = Cookies.get('userToken') || user?.token;
+            
+            // Get the full story details by ID
+            const fullStory = await getStory(token, story.id);
+
+            // Navigate to story viewer with full story data
+            navigate(`/story/${story.id}`, { state: { story: fullStory } });
+        } catch (error) {
+            console.error("Error loading story:", error);
+            // Set error state for this specific story
+            setStoryError({ 
+                id: story.id, 
+                message: `Failed to load: ${error.message || 'Unknown error'}` 
+            });
+        } finally {
+            setIsLoadingStory(false);
+            setSelectedStoryId(null);
+        }
     };
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -82,23 +111,43 @@ const StoryLibrary = () => {
                 </div>
             ) : (
                 stories.map((story) => (
-                    <div
-                        key={story.id}
-                        onClick={() => handleSelectStory(story)}
-                        className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-200"
-                    >
-                        <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
-                            <BookOpen className="w-20 h-20 text-white" />
+                    <div key={story.id} className="relative">
+                        <div
+                            onClick={() => !isLoadingStory && handleSelectStory(story)}
+                            className={`bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-200 
+                                ${isLoadingStory && selectedStoryId === story.id ? 'opacity-75' : 'hover:scale-105'}`}
+                        >
+                            <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                                {isLoadingStory && selectedStoryId === story.id ? (
+                                    <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <BookOpen className="w-20 h-20 text-white" />
+                                )}
+                            </div>
+                            <div className="p-4">
+                                <h3 className="text-xl font-bold text-gray-800 mb-2">{story.title}</h3>
+                                <p className="text-gray-600 text-sm">
+                                    Created on {new Date(story.createdAt).toLocaleDateString()}
+                                </p>
+                                <p className="text-purple-600 font-semibold mt-2">
+                                    {story.pages.length} pages
+                                </p>
+                            </div>
                         </div>
-                        <div className="p-4">
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">{story.title}</h3>
-                            <p className="text-gray-600 text-sm">
-                                Created on {new Date(story.createdAt).toLocaleDateString()}
-                            </p>
-                            <p className="text-purple-600 font-semibold mt-2">
-                                {story.pages.length} pages
-                            </p>
-                        </div>
+                        
+                        {/* Error message below the tile */}
+                        {storyError.id === story.id && (
+                            <div className="mt-2 p-2 bg-red-50 border-l-4 border-red-500 rounded text-sm text-red-600">
+                                <div className="font-semibold">Error</div>
+                                <div>{storyError.message}</div>
+                                <button 
+                                    onClick={() => setStoryError({ id: null, message: '' })}
+                                    className="mt-1 text-xs text-red-500 hover:text-red-700 underline"
+                                >
+                                    Dismiss
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))
             )}
