@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronLeft, ChevronRight, Home, Volume2, Save } from 'lucide-react';
+import { 
+    Sparkles, ChevronLeft, ChevronRight, Home, Volume2, 
+    Save, Settings, Share2, ArrowLeft, Star, Heart, 
+    ThumbsUp, Music, PauseCircle, PlayCircle 
+} from 'lucide-react';
 import { AuthContext } from './AuthProvider';
 import { saveStory } from '../services/api';
 
@@ -33,9 +37,7 @@ const StoryViewer = () => {
     ];
 
     // Number of actual page spreads (excluding cover)
-    const totalSpreads = Math.ceil((allPages.length - 1) / 2);
-
-    // Handle page navigation
+    const totalSpreads = Math.ceil((allPages.length - 1) / 2);    // Handle page navigation
     const goToSpread = (spread) => {
         if (spread >= 0 && spread < totalSpreads) {
             // Stop current audio when changing pages
@@ -47,6 +49,14 @@ const StoryViewer = () => {
             setCurrentSpread(spread);
             setTimeout(() => setIsFlipping(false), 500);
         }
+    };
+    
+    // Format page numbers for display like in SamplePage
+    const getFormattedPageDisplay = () => {
+        if (currentSpread === 0) {
+            return 'COVER';
+        }
+        return `PAGE ${currentSpread} OF ${totalSpreads - 1}`;
     };
 
     // Handle audio playback
@@ -103,6 +113,9 @@ const StoryViewer = () => {
         return allPages.slice(startIdx, startIdx + 2);
     };
 
+    // Enhanced page turning animation
+    const [flipDirection, setFlipDirection] = useState("right");
+
     // Clean up audio on unmount
     useEffect(() => {
         return () => {
@@ -116,6 +129,27 @@ const StoryViewer = () => {
         };
     }, [audioPlayer]);
 
+    // Set page background colors based on content or mood
+    const getPageBackground = (pageIndex) => {
+        const colors = [
+            "bg-gradient-to-br from-[#FFECD2] to-[#FFCACC]", // Cover gradient
+            "bg-[#F5FFE8]", // Light green
+            "bg-[#E9F7FF]", // Light blue
+            "bg-[#FFF5E9]", // Light orange
+            "bg-[#F9EBFF]", // Light purple
+            "bg-[#E9FFF2]"  // Light mint
+        ];
+        
+        // If it's a cover page, return the cover gradient
+        if (allPages[pageIndex]?.isCover) {
+            return colors[0];
+        }
+        
+        // Otherwise cycle through the other colors
+        const colorIndex = (pageIndex % (colors.length - 1)) + 1;
+        return colors[colorIndex];
+    };
+
     const leftPageIndex = currentSpread * 2;
     const rightPageIndex = currentSpread * 2 + 1;
     const leftPage = allPages[leftPageIndex];
@@ -123,6 +157,7 @@ const StoryViewer = () => {
 
     const nextSpread = () => {
         if (rightPageIndex < allPages.length - 1) {
+            setFlipDirection("left");
             setIsFlipping(true);
             setTimeout(() => {
                 setCurrentSpread(currentSpread + 1);
@@ -133,6 +168,7 @@ const StoryViewer = () => {
 
     const prevSpread = () => {
         if (currentSpread > 0) {
+            setFlipDirection("right");
             setIsFlipping(true);
             setTimeout(() => {
                 setCurrentSpread(currentSpread - 1);
@@ -187,97 +223,107 @@ const StoryViewer = () => {
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-100 z-50 overflow-hidden">
-            {/* Header bar */}
-            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-pink-500 to-purple-500 h-16 flex items-center justify-between px-6 shadow-lg z-20">
-                <div className="text-white font-bold text-lg">
+        <div className="fixed inset-0 bg-[#EDF6E5] z-50 overflow-hidden flex flex-col">        {/* Header bar - styled exactly like the SamplePage image with bright blue background */}
+        <div className="bg-[#22B8EA] flex items-center justify-between px-4 py-2 z-20 shadow-md">            <div className="flex items-center space-x-3">
+                <button 
+                    onClick={() => navigate('/create')}
+                    className="text-white hover:bg-blue-400 p-1 rounded-full transition-all"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
+                <h1 className="text-white font-bold text-xl md:text-2xl truncate">
                     {story.title}
-                </div>
-                <div className="text-white font-medium">
-                    {pageDisplay}
-                </div>                
-                <div className="flex gap-2">
-                    {isAuthenticated && (
-                        <button
-                            onClick={handleSaveStory}
-                            disabled={isSaving}
-                            className={`bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <Save className={`w-5 h-5 text-white ${isSaving ? 'animate-pulse' : ''}`} />
-                        </button>
-                    )}
-                    <button
-                        onClick={() => navigate('/create')}
-                        className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-all"
-                    >
-                        <Home className="w-5 h-5 text-white" />
+                </h1>
+            </div>              <div className="flex items-center space-x-3">
+                {isAuthenticated && (
+                    <button className="text-white p-1.5 hover:bg-blue-400 rounded-full transition-all">
+                        <Share2 className="w-5 h-5" />
                     </button>
-                </div>
+                )}
+                {isAuthenticated && (
+                    <button
+                        onClick={handleSaveStory}
+                        disabled={isSaving}
+                        className={`text-white p-1.5 hover:bg-blue-400 rounded-full transition-all ${isSaving ? 'opacity-50' : ''}`}
+                    >
+                        <Save className={`w-5 h-5 ${isSaving ? 'animate-pulse' : ''}`} />
+                    </button>
+                )}
+                <button 
+                    onClick={() => navigate('/create')}
+                    className="text-white p-1.5 hover:bg-blue-400 rounded-full transition-all"
+                >
+                    <Home className="w-5 h-5" />
+                </button>
             </div>
-            {/* Book container */}
-            <div className="h-full pt-16 pb-20 flex items-center justify-center px-4">
-                <div className="relative max-w-7xl w-full h-full">
-                    <div className={`relative h-full transition-transform duration-300 ${isFlipping ? 'scale-98' : 'scale-100'}`}>
-                        {/* Book spine/binding */}
-                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-300 shadow-inner z-10"></div>
-                        {/* Double page spread */}
-                        <div className="relative h-full flex shadow-2xl rounded-lg overflow-hidden">
-                            {/* Left page */}
-                            <div className="relative w-1/2 h-full bg-white overflow-hidden">
+        </div>
+            <div className="flex-grow relative overflow-hidden">
+                <div className="absolute inset-0 flex flex-col">          
+                <div className="bg-[#FF2E6F] text-white text-xs font-bold px-4 py-1 flex items-center shadow-sm">
+                    REVIEW (Page {currentSpread + 1} / {totalSpreads})
+                </div>
+                    <div className="flex-grow flex items-center justify-center px-4 pb-2 overflow-hidden">
+                        <div className={`w-full h-full max-w-5xl mx-auto transition-all duration-300 ${isFlipping ? `scale-95 opacity-90 ${flipDirection === 'left' ? 'translate-x-4' : 'translate-x-[-4px]'}` : 'scale-100 translate-x-0'}`}>
+                            <div className="h-full w-full flex bg-white shadow-xl rounded-md overflow-hidden">
+                                {/* Left page */}
+                                <div className="w-1/2 h-full relative border-r border-gray-200 overflow-hidden">
                                 {leftPage && (
                                     <>
                                         {leftPage.isCover ? (
-                                            <div className="relative h-full bg-gradient-to-br from-purple-400 via-pink-400 to-yellow-400">
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="text-center p-8">
-                                                        <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
-                                                            {story.title}
-                                                        </h1>
-                                                        <div className="w-48 h-48 md:w-64 md:h-64 mx-auto bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-2xl">
-                                                            <Sparkles className="w-24 h-24 md:w-32 md:h-32 text-purple-500" />
-                                                        </div>
-                                                        <p className="mt-8 text-xl md:text-2xl text-white font-medium drop-shadow">
-                                                            A Magical Story
-                                                        </p>
+                                            <div className="h-full bg-gradient-to-br from-[#FFECD2] to-[#FFCACC] p-8 flex flex-col justify-between">
+                                                <div className="text-center">
+                                                    <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                                                        {story.title}
+                                                    </h1>
+                                                    <div className="w-32 h-32 md:w-40 md:h-40 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg">
+                                                        <Sparkles className="w-16 h-16 md:w-20 md:h-20 text-purple-500" />
                                                     </div>
                                                 </div>
+                                                <p className="text-center text-gray-700 font-medium">
+                                                    A Magical Story
+                                                </p>
                                             </div>
                                         ) : (
-                                            <div className="relative h-full">
+                                            <div className={`h-full relative ${getPageBackground(leftPageIndex)}`}>
                                                 <img
                                                     src={leftPage.illustration}
                                                     alt={`Page ${leftPage.pageNumber}`}
-                                                    className="absolute inset-0 w-full h-full object-cover"
+                                                    className="absolute inset-0 w-full h-full object-cover opacity-80"
                                                 />
-                                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black to-transparent bg-opacity-60 p-6 md:p-10">
-                                                    <p className="text-white text-xl md:text-2xl lg:text-3xl leading-relaxed font-medium drop-shadow-lg">
-                                                        {leftPage.text}
-                                                    </p>
+                                                <div className="absolute inset-x-0 bottom-0 p-4">
+                                                    <div className="bg-white rounded-lg p-3 shadow-md">
+                                                        <p className="text-gray-800 text-lg font-medium leading-relaxed">
+                                                            {leftPage.text}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
                                     </>
                                 )}
                             </div>
-                            {/* Right page */}
-                            <div className="relative w-1/2 h-full bg-white overflow-hidden">
+                            
+                            {/* Right page - styled to match left page */}
+                            <div className="w-1/2 h-full relative overflow-hidden">
                                 {rightPage && (
                                     <>
                                         {rightPage.isCover ? (
-                                            <div className="h-full bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200 flex items-center justify-center">
+                                            <div className="h-full bg-gradient-to-bl from-[#FFECD2] to-[#FFCACC] flex items-center justify-center">
                                                 <p className="text-gray-600 text-lg italic">Turn the page to begin...</p>
                                             </div>
                                         ) : (
-                                            <div className="relative h-full">
+                                            <div className={`h-full relative ${getPageBackground(rightPageIndex)}`}>
                                                 <img
                                                     src={rightPage.illustration}
                                                     alt={`Page ${rightPage.pageNumber}`}
-                                                    className="absolute inset-0 w-full h-full object-cover"
+                                                    className="absolute inset-0 w-full h-full object-cover opacity-80"
                                                 />
-                                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black to-transparent bg-opacity-60 p-6 md:p-10">
-                                                    <p className="text-white text-xl md:text-2xl lg:text-3xl leading-relaxed font-medium drop-shadow-lg">
-                                                        {rightPage.text}
-                                                    </p>
+                                                <div className="absolute inset-x-0 bottom-0 p-4">
+                                                    <div className="bg-white rounded-lg p-3 shadow-md">
+                                                        <p className="text-gray-800 text-lg font-medium leading-relaxed">
+                                                            {rightPage.text}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
@@ -286,62 +332,95 @@ const StoryViewer = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            {/* Bottom navigation bar */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-20 flex items-center justify-between px-6 shadow-lg">
-                <button
-                    onClick={prevSpread}
-                    disabled={currentSpread === 0}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${currentSpread === 0
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-105'
-                        }`}
-                >
-                    <ChevronLeft className="w-6 h-6" />
-                    <span className="font-medium">Previous</span>
-                </button>
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={handleSpeak}
-                        className={`p-3 rounded-full transition-all transform ${isReading
-                            ? 'bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg'
-                            : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:scale-105'
-                            } text-white`}
-                    >
-                        <Volume2 className="w-6 h-6" />
-                    </button>
-                    <div className="text-gray-600 font-medium">
-                        {pageDisplay} of {story.pages.length}
                     </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                    {isAuthenticated && (
-                        <button
-                            onClick={handleSaveStory}
-                            disabled={isSaving}
-                            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${isSaving
-                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-green-400 to-blue-500 text-white hover:shadow-lg hover:scale-105'
-                                }`}
-                        >
-                            <Save className="w-6 h-6" />
-                            <span className="font-medium">{isSaving ? 'Saving...' : 'Save'}</span>
-                        </button>
-                    )}
+            </div>
+            <div className="flex flex-col bg-white border-t border-gray-200">
+                <div className="flex items-center px-4 py-3 gap-3">
+                    <button
+                        onClick={handleSpeak}
+                        className={`rounded-full h-11 w-11 ${isReading ? 'bg-[#22B8EA]' : 'bg-white border-2 border-[#22B8EA]'} flex items-center justify-center transition-colors shadow-sm hover:opacity-90`}
+                    >
+                        <Volume2 className={`w-6 h-6 ${isReading ? 'text-white' : 'text-[#22B8EA]'}`} />
+                    </button>
+                    
+                    <div className="flex-grow h-3 relative">
+                        <div className="absolute inset-0 rounded-full bg-gray-300"></div>
+                        <div 
+                            className={`absolute inset-y-0 left-0 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-full transition-all duration-200 ${isReading ? 'animate-progress' : ''}`}
+                            style={{ width: isReading ? '70%' : '0%' }}
+                        ></div>
+                        <div className="absolute h-6 w-6 bg-white border-2 border-[#22B8EA] rounded-full shadow-md" 
+                            style={{ top: '-6px', left: isReading ? '70%' : '0%', transform: 'translateX(-50%)' }}></div>
+                    </div>
+                    
+                    <div className="text-gray-600 text-xs font-bold">
+                        PAGE {currentSpread + 1} OF {totalSpreads}
+                    </div>
+                </div>
+                <div className="flex justify-center items-center py-3 gap-16">
+                    <button
+                        onClick={prevSpread}
+                        disabled={currentSpread === 0}
+                        className={`${currentSpread === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
+                    >
+                        <div className="w-12 h-12 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
+                            <ChevronLeft className="w-7 h-7 text-white" />
+                        </div>
+                    </button>
+                    
                     <button
                         onClick={nextSpread}
                         disabled={rightPageIndex >= allPages.length - 1}
-                        className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all transform ${rightPageIndex >= allPages.length - 1
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-105'
-                            }`}
+                        className={`${rightPageIndex >= allPages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
                     >
-                        <span className="font-medium">Next</span>
-                        <ChevronRight className="w-6 h-6" />
+                        <div className="w-12 h-12 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
+                            <ChevronRight className="w-7 h-7 text-white" />
+                        </div>
                     </button>
                 </div>
             </div>
+              {/* Enhanced CSS animations for the audio progress and page flipping */}
+            <style jsx>{`
+                @keyframes progress {
+                    0% { width: 0%; }
+                    100% { width: 100%; }
+                }
+                .animate-progress {
+                    animation: progress 20s linear;
+                }
+                
+                @keyframes flip {
+                    0% { transform: perspective(1500px) rotateY(0deg); }
+                    100% { transform: perspective(1500px) rotateY(180deg); }
+                }
+                
+                @keyframes float {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-5px); }
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                }
+                
+                .flip-left {
+                    animation: flip 0.6s forwards;
+                }
+                
+                .flip-right {
+                    animation: flip 0.6s forwards reverse;
+                }
+                
+                .float {
+                    animation: float 3s ease-in-out infinite;
+                }
+                
+                .pulse {
+                    animation: pulse 2s ease-in-out infinite;
+                }
+            `}</style>
         </div>
     );
 };
