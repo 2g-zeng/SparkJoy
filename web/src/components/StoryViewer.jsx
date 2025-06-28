@@ -5,8 +5,110 @@ import {
     Save, Settings, Share2, ArrowLeft, Star, Heart,
     ThumbsUp, Music, PauseCircle, PlayCircle
 } from 'lucide-react';
+import HTMLFlipBook from 'react-pageflip';
 import { AuthContext } from './AuthProvider';
 import { saveStory } from '../services/api';
+
+// Individual page component for the flip book
+const Page = React.forwardRef((props, ref) => {
+    const { 
+        pageData, 
+        pageNumber, 
+        width, 
+        height, 
+        isTextPage = false,
+        className = ""
+    } = props;
+    
+    const isPageEmpty = !pageData;
+    const isCover = pageData?.isCover;
+    const isRightPage = pageNumber % 2 === 0; // Even page numbers are on the right side
+    
+    const pageStyle = {
+        width,
+        height,
+        background: 'white',
+        backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%23f0f0f0\' fill-opacity=\'0.1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+        backgroundSize: '300px',
+        position: 'relative'
+    };
+    
+    // For cover page, use special styling
+    if (isCover) {
+        // Enhanced cover page gradient that works well as a standalone page
+        pageStyle.background = 'linear-gradient(135deg, #FFECD2 0%, #FFCACC 100%)';
+        pageStyle.backgroundSize = '100% 100%';
+        // Add a subtle pattern overlay for texture
+        pageStyle.backgroundImage = 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")';
+    }
+    
+    return (
+        <div className={`page-wrapper ${className}`} ref={ref}>
+            <div className="page" style={pageStyle}>
+                {!isPageEmpty && (
+                    <div className="page-content h-full">
+                        {/* Image Area - Top 75% */}
+                        <div className="h-3/4 w-full overflow-hidden relative">
+                            {isCover ? (
+                                // Cover page content - only one cover page now
+                                <div className="h-full p-8 flex flex-col justify-between">
+                                    <div className="text-center">
+                                        <h1 className="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                                            {pageData.title}
+                                        </h1>
+                                        <div className="w-36 h-36 md:w-48 md:h-48 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg">
+                                            <Sparkles className="w-20 h-20 md:w-24 md:h-24 text-purple-500" />
+                                        </div>
+                                    </div>
+                                    <p className="text-center text-gray-700 font-medium">
+                                        A Magical Story
+                                    </p>
+                                </div>
+                            ) : (
+                                // Regular page image content
+                                <div className="h-full flex items-center justify-center bg-white relative">
+                                    <img
+                                        src={pageData.illustration}
+                                        alt={`Page ${pageData.pageNumber}`}
+                                        className="max-w-full max-h-full object-contain p-3"
+                                    />
+                                    <div className={`absolute bottom-3 ${isRightPage ? 'right-8' : 'left-8'} text-sm text-gray-500 font-serif`}>
+                                        {pageData.pageNumber}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Text Area - Bottom 25% */}
+                        <div className="h-1/4 w-full p-2 flex items-center justify-center bg-[#F8F9FA]" 
+                             style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
+                            {!isCover && pageData.text && (
+                                <div className="bg-white rounded-lg p-3 shadow-md h-full w-full flex items-center book-text overflow-auto">
+                                    <p className="text-gray-800 text-base md:text-lg font-medium leading-relaxed">
+                                        {pageData.text}
+                                    </p>
+                                </div>
+                            )}
+                            {isCover && (
+                                <div className="bg-white rounded-lg p-2 shadow-md h-full w-full flex items-center justify-center">
+                                    <div className="text-center">
+                                        <h2 className="text-xl md:text-3xl font-bold text-gray-800">
+                                            {pageData.title}
+                                        </h2>
+                                        <p className="text-sm md:text-base text-gray-600 mt-2">By SparkJoy AI</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+                
+                {/* Page edge shadow effect - consistent width and style for both sides */}
+                <div className={`absolute top-0 ${isRightPage ? 'left-0 bg-gradient-to-r' : 'right-0 bg-gradient-to-l'} bottom-0 w-10 from-gray-200 to-transparent opacity-50 z-10 pointer-events-none`}></div>
+            </div>
+        </div>
+    );
+});
 
 const StoryViewer = () => {
     const location = useLocation();
@@ -17,58 +119,112 @@ const StoryViewer = () => {
     // Check if user is authenticated (has a token) or is a guest
     const isAuthenticated = user && user.token;
 
-    const [currentSpread, setCurrentSpread] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const [isReading, setIsReading] = useState(false);
-    const [isFlipping, setIsFlipping] = useState(false);
     const [audioPlayer, setAudioPlayer] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setError] = useState('');
-    const [flipDirection, setFlipDirection] = useState("right");
-
-    // Create pages array with cover page
-    const allPages = [
-        {
+    const [pageWidth, setPageWidth] = useState(550); // Increased from 480
+    const [pageHeight, setPageHeight] = useState(825); // Increased from 720
+    const [orientation, setOrientation] = useState("landscape");
+    const [isLoading, setIsLoading] = useState(true);
+    const [showHelp, setShowHelp] = useState(false);
+    
+    const flipBookRef = useRef(null);
+    const containerRef = useRef(null);
+    
+    // Prepare all pages with proper structure for the flip book
+    const pagesData = React.useMemo(() => {
+        const pages = [];
+        
+        // Add cover page as a single page (no "turn the page to begin" page)
+        pages.push({
             pageNumber: 0,
             text: "",
             illustration: story?.pages[0]?.illustration || "cover",
             isCover: true,
             title: story?.title
-        },
-        ...(story?.pages || [])
-    ];
-
-    // Number of actual page spreads (excluding cover)
-    const totalSpreads = Math.ceil((allPages.length - 1) / 2);
-
-    // Handle page navigation
-    const goToSpread = (spread) => {
-        if (spread >= 0 && spread < totalSpreads) {
-            // Stop current audio when changing pages
-            if (audioPlayer) {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-            }
-            setIsFlipping(true);
-            setCurrentSpread(spread);
-            setTimeout(() => setIsFlipping(false), 500);
+        });
+        
+        // Add story pages - start directly with the content
+        if (story?.pages) {
+            story.pages.forEach(page => {
+                pages.push({
+                    ...page,
+                    pageNumber: parseInt(page.pageNumber) // No need to adjust page numbers as much
+                });
+            });
+        }
+        
+        // Add a back cover page if needed to make total pages even
+        if (pages.length % 2 !== 0) {
+            pages.push({
+                pageNumber: pages.length,
+                text: "",
+                illustration: "",
+                isBackCover: true
+            });
+        }
+        
+        return pages;
+    }, [story]);
+    
+    // Calculate total number of pages
+    const totalPages = pagesData.length;
+    
+    // Handle page flip event
+    const handlePageFlip = (e) => {
+        setCurrentPage(e.data);
+        
+        // Stop current audio when changing pages
+        if (audioPlayer) {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            setIsReading(false);
+        }
+        
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            setIsReading(false);
         }
     };
-
+    
+    // Navigation handlers
+    const nextPage = () => {
+        if (flipBookRef.current) {
+            flipBookRef.current.pageFlip().flipNext();
+        }
+    };
+    
+    const prevPage = () => {
+        if (flipBookRef.current) {
+            flipBookRef.current.pageFlip().flipPrev();
+        }
+    };
+    
     // Handle audio playback
     const handleSpeak = () => {
-        const currentPages = getCurrentSpreadPages();
-
+        // If already reading, stop playback
         if (isReading) {
             if (audioPlayer) {
                 audioPlayer.pause();
                 audioPlayer.currentTime = 0;
             }
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            
             setIsReading(false);
             return;
         }
-
+        
+        // Get current visible pages (usually 2 pages in the spread)
+        const visiblePages = getCurrentVisiblePages();
+        
         // Use AI-generated audio if available, otherwise use text-to-speech
-        const pageWithAudio = currentPages.find(page => page.audioUrl);
+        const pageWithAudio = visiblePages.find(page => page.audioUrl);
+        
         if (pageWithAudio?.audioUrl) {
             const audio = new Audio(pageWithAudio.audioUrl);
             audio.onended = () => {
@@ -81,33 +237,85 @@ const StoryViewer = () => {
         } else {
             // Fallback to browser's text-to-speech
             if (!window.speechSynthesis) return;
-
-            const textToRead = currentPages
+            
+            const textToRead = visiblePages
                 .map(page => page.text)
                 .filter(Boolean)
                 .join(". ");
-
+            
             if (!textToRead) return;
-
+            
             const utterance = new SpeechSynthesisUtterance(textToRead);
             utterance.rate = 0.9;
             utterance.pitch = 1.1;
             utterance.onend = () => setIsReading(false);
-
+            
             setIsReading(true);
             window.speechSynthesis.speak(utterance);
         }
     };
-
-    // Get current spread pages
-    const getCurrentSpreadPages = () => {
-        if (currentSpread === 0) {
-            return [allPages[0]];
+    
+    // Get current visible pages
+    const getCurrentVisiblePages = () => {
+        // In a flip book, even pages are on the right and odd pages are on the left
+        // When current page is even, we're looking at pages current and current+1
+        // When current page is odd, we're looking at pages current-1 and current
+        
+        const pages = [];
+        
+        if (currentPage % 2 === 0) {
+            // Even page is on the right
+            if (currentPage < totalPages) pages.push(pagesData[currentPage]);
+            if (currentPage + 1 < totalPages) pages.push(pagesData[currentPage + 1]);
+        } else {
+            // Odd page is on the left
+            if (currentPage - 1 >= 0) pages.push(pagesData[currentPage - 1]);
+            if (currentPage < totalPages) pages.push(pagesData[currentPage]);
         }
-        const startIdx = (currentSpread * 2) - 1;
-        return allPages.slice(startIdx, startIdx + 2);
+        
+        return pages;
     };
-
+    
+    // Handle loading state
+    useEffect(() => {
+        // Simulate loading of book resources
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
+        
+        return () => clearTimeout(timer);
+    }, []);
+    
+    // Add keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextPage();
+            } else if (e.key === 'ArrowLeft') {
+                prevPage();
+            } else if (e.key === 'm') {
+                // Toggle audio with 'm' key
+                handleSpeak();
+            } else if (e.key === 'Home') {
+                // Go to first page
+                if (flipBookRef.current) {
+                    flipBookRef.current.pageFlip().flip(0);
+                }
+            } else if (e.key === 'End') {
+                // Go to last page
+                if (flipBookRef.current) {
+                    flipBookRef.current.pageFlip().flip(Math.max(0, totalPages - 2));
+                }
+            }
+        };
+        
+        window.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [currentPage, isAuthenticated, totalPages]);
+    
     // Clean up audio on unmount
     useEffect(() => {
         return () => {
@@ -115,79 +323,101 @@ const StoryViewer = () => {
                 audioPlayer.pause();
                 audioPlayer.currentTime = 0;
             }
-            if (window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-            }
-        };
-    }, [audioPlayer]);
-
-    // Set page background colors based on content or mood
-    // const getPageBackground = (pageIndex) => {
-    //     const colors = [
-    //         "bg-gradient-to-br from-[#FFECD2] to-[#FFCACC]", // Cover gradient
-    //         "bg-[#F5FFE8]", // Light green
-    //         "bg-[#E9F7FF]", // Light blue
-    //         "bg-[#FFF5E9]", // Light orange
-    //         "bg-[#F9EBFF]", // Light purple
-    //         "bg-[#E9FFF2]"  // Light mint
-    //     ];
-
-    //     // If it's a cover page, return the cover gradient
-    //     if (allPages[pageIndex]?.isCover) {
-    //         return colors[0];
-    //     }
-
-    //     // Otherwise cycle through the other colors
-    //     const colorIndex = (pageIndex % (colors.length - 1)) + 1;
-    //     return colors[colorIndex];
-    // };
-
-    const leftPageIndex = currentSpread * 2;
-    const rightPageIndex = currentSpread * 2 + 1;
-    const leftPage = allPages[leftPageIndex];
-    const rightPage = allPages[rightPageIndex];
-
-    const nextSpread = () => {
-        if (rightPageIndex < allPages.length - 1) {
-            setFlipDirection("left");
-            setIsFlipping(true);
-            setTimeout(() => {
-                setCurrentSpread(currentSpread + 1);
-                setIsFlipping(false);
-            }, 300);
-        }
-    };
-
-    const prevSpread = () => {
-        if (currentSpread > 0) {
-            setFlipDirection("right");
-            setIsFlipping(true);
-            setTimeout(() => {
-                setCurrentSpread(currentSpread - 1);
-                setIsFlipping(false);
-            }, 300);
-        }
-    };
-
-    useEffect(() => {
-        return () => {
+            
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
         };
+    }, [audioPlayer]);
+    
+    // Adjust book size based on container and window size
+    useEffect(() => {
+        const updateDimensions = () => {
+            if (containerRef.current) {
+                const container = containerRef.current;
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                
+                // Determine orientation based on window dimensions
+                const isLandscape = window.innerWidth > window.innerHeight;
+                setOrientation(isLandscape ? "landscape" : "portrait");
+                
+                // Calculate ideal page dimensions while maintaining a book-like aspect ratio
+                // Make the book bigger by using more of the available space
+                const targetRatio = 1.3; // height/width ratio for a single page (slightly wider)
+                
+                let newWidth, newHeight;
+                
+                if (isLandscape) {
+                    // Use 95% of available height (increased from 90%)
+                    newHeight = containerHeight * 0.95;
+                    // Calculate width based on the target ratio
+                    newWidth = newHeight / targetRatio;
+                    
+                    // Ensure the total width (2 pages) isn't too wide
+                    if (newWidth * 2 > containerWidth * 0.98) { // Use more width (98% vs 95%)
+                        newWidth = (containerWidth * 0.98) / 2;
+                        newHeight = newWidth * targetRatio;
+                    }
+                } else {
+                    // Portrait mode - use 98% of available width for a single page
+                    newWidth = containerWidth * 0.98;
+                    newHeight = newWidth * targetRatio;
+                    
+                    // Ensure height isn't too tall
+                    if (newHeight > containerHeight * 0.95) { // Use more height (95% vs 90%)
+                        newHeight = containerHeight * 0.95;
+                        newWidth = newHeight / targetRatio;
+                    }
+                }
+                
+                // Set dimensions, ensuring they're not smaller than minimum sizes
+                // Increase minimum sizes further
+                setPageWidth(Math.max(420, Math.floor(newWidth)));
+                setPageHeight(Math.max(550, Math.floor(newHeight)));
+            }
+        };
+        
+        // Initial update
+        updateDimensions();
+        
+        // Update on resize
+        window.addEventListener('resize', updateDimensions);
+        
+        return () => {
+            window.removeEventListener('resize', updateDimensions);
+        };
     }, []);
-
-    const getPageNumbers = () => {
-        const visiblePages = [];
-        if (leftPage && !leftPage.isCover) visiblePages.push(leftPage.pageNumber);
-        if (rightPage && !rightPage.isCover) visiblePages.push(rightPage.pageNumber);
-        return visiblePages;
+    
+    // Generate page numbers display
+    const getPageDisplay = () => {
+        // Adjust for single cover page
+        const adjustedCurrentPage = currentPage === 0 ? 0 : currentPage;
+        const adjustedTotalPages = Math.max(1, totalPages - 1); // -1 because cover doesn't count
+        
+        if (currentPage === 0) {
+            return 'Cover';
+        }
+        
+        return `Page ${adjustedCurrentPage} / ${adjustedTotalPages}`;
     };
-
-    const pageNumbers = getPageNumbers();
-    const pageDisplay = pageNumbers.length > 0 ?
-        (pageNumbers.length === 1 ? `Page ${pageNumbers[0]}` : `Page ${pageNumbers[0]}/${pageNumbers[1]}`) :
-        'Cover';
+    
+    // Helper function to show notifications
+    const showNotification = (message, type = 'success') => {
+        const notification = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-green-500' : 
+                        type === 'error' ? 'bg-red-500' : 
+                        'bg-blue-500';
+                        
+        notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-out`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('opacity-0');
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    };
 
     // Handle save story
     const handleSaveStory = async () => {
@@ -195,20 +425,14 @@ const StoryViewer = () => {
             setIsSaving(true);
             setError('');
             await saveStory(user.token, story, user.username);
+            
             // Show success feedback
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-out';
-            notification.textContent = 'Story saved successfully!';
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
+            showNotification('Story saved successfully!', 'success');
         } catch (error) {
             setError(error.message);
+            
             // Show error feedback
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-out';
-            notification.textContent = error.message;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
+            showNotification(error.message, 'error');
         } finally {
             setIsSaving(false);
         }
@@ -216,7 +440,7 @@ const StoryViewer = () => {
 
     return (
         <div className="fixed inset-0 bg-[#EDF6E5] z-50 overflow-hidden flex flex-col">
-            {/* Header bar - styled exactly like the SamplePage image with bright blue background */}
+            {/* Header bar - bright blue background */}
             <div className="bg-[#22B8EA] flex items-center justify-between px-4 py-2 z-20 shadow-md">
                 <div className="flex items-center space-x-3">
                     <button
@@ -226,7 +450,7 @@ const StoryViewer = () => {
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <h1 className="text-white font-bold text-xl md:text-2xl truncate">
-                        {story.title}
+                        {story?.title}
                     </h1>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -245,6 +469,12 @@ const StoryViewer = () => {
                         </button>
                     )}
                     <button
+                        onClick={() => setShowHelp(!showHelp)}
+                        className={`text-white p-1.5 hover:bg-blue-400 rounded-full transition-all ${showHelp ? 'bg-blue-400' : ''}`}
+                    >
+                        <Settings className="w-5 h-5" />
+                    </button>
+                    <button
                         onClick={() => navigate('/create')}
                         className="text-white p-1.5 hover:bg-blue-400 rounded-full transition-all"
                     >
@@ -253,160 +483,182 @@ const StoryViewer = () => {
                 </div>
             </div>
 
+            {/* Page status banner */}
+            <div className="bg-[#FF2E6F] text-white text-xs font-bold px-4 py-1 flex items-center shadow-sm">
+                {getPageDisplay()}
+            </div>
+
             {/* Main content area with book display */}
-            <div className="flex-grow relative overflow-hidden">
-                <div className="absolute inset-0 flex flex-col">
-                    <div className="bg-[#FF2E6F] text-white text-xs font-bold px-4 py-1 flex items-center shadow-sm">
-                        Page {currentSpread + 1} / {totalSpreads}
+            <div 
+                className="flex-grow relative overflow-hidden bg-white flex items-center justify-center"
+                ref={containerRef}
+            >
+                {/* Loading overlay */}
+                {isLoading && (
+                    <div className="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center">
+                        <div className="relative w-24 h-24 mb-4">
+                            <div className="animate-book-open w-full h-full">
+                                <div className="absolute w-16 h-20 bg-gradient-to-r from-[#FFECD2] to-[#FFCACC] rounded-r-md rounded-b-md shadow-md left-4 top-2"></div>
+                                <div className="absolute w-16 h-20 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-l-md rounded-b-md shadow-md right-4 top-2 origin-right animate-page-flip"></div>
+                            </div>
+                            <Sparkles className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-purple-500" />
+                        </div>
+                        <p className="text-gray-500 text-sm animate-pulse">Loading your magical storybook...</p>
                     </div>
+                )}
+                {/* Left navigation button - moved further out with larger size */}
+                <button
+                    onClick={prevPage}
+                    disabled={currentPage <= 0}
+                    className={`absolute left-3 sm:left-6 md:left-10 lg:left-14 top-1/2 transform -translate-y-1/2 z-20 ${
+                        currentPage <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
+                    } transition-all`}
+                >
+                    <div className="w-14 h-14 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-lg">
+                        <ChevronLeft className="w-8 h-8 text-white" />
+                    </div>
+                </button>
 
-                    <div className="flex-grow flex items-center justify-center px-2 overflow-hidden bg-white">
-                        {/* Left navigation button - moved outside */}
-                        <button
-                            onClick={prevSpread}
-                            disabled={currentSpread === 0}
-                            className={`absolute left-6 top-1/2 transform -translate-y-1/2 z-20 ${currentSpread === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
-                        >
-                            <div className="w-10 h-10 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
-                                <ChevronLeft className="w-6 h-6 text-white" />
-                            </div>
-                        </button>
+                {/* Right navigation button - moved further out with larger size */}
+                <button
+                    onClick={nextPage}
+                    disabled={currentPage >= totalPages - 1}
+                    className={`absolute right-3 sm:right-6 md:right-10 lg:right-14 top-1/2 transform -translate-y-1/2 z-20 ${
+                        currentPage >= totalPages - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
+                    } transition-all`}
+                >
+                    <div className="w-14 h-14 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-lg">
+                        <ChevronRight className="w-8 h-8 text-white" />
+                    </div>
+                </button>
 
-                        {/* Right navigation button - moved outside */}
-                        <button
-                            onClick={nextSpread}
-                            disabled={rightPageIndex >= allPages.length - 1}
-                            className={`absolute right-6 top-1/2 transform -translate-y-1/2 z-20 ${rightPageIndex >= allPages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
+                {/* Book container with shadow effects */}
+                <div className="book-container-wrapper relative w-full h-full max-w-[98%] mx-auto flex items-center justify-center">
+                    {/* Book shadow underneath for 3D effect - enlarged */}
+                    <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-[98%] h-12 bg-black opacity-20 blur-md rounded-full"></div>
+                    
+                    {/* Actual flipbook */}
+                    <div className="relative book-container">
+                        <HTMLFlipBook
+                            width={pageWidth}
+                            height={pageHeight}
+                            size="fixed"
+                            minWidth={420}
+                            maxWidth={1100}
+                            minHeight={550}
+                            maxHeight={1500}
+                            maxShadowOpacity={0.5}
+                            showCover={true}
+                            startZIndex={5}
+                            showPageCorners={true}
+                            mobileScrollSupport={true}
+                            onFlip={handlePageFlip}
+                            className="book-flip"
+                            ref={flipBookRef}
+                            usePortrait={orientation === "portrait"}
+                            startPage={0}
+                            drawShadow={true}
+                            flippingTime={1000}
+                            useMouseEvents={true}
+                            swipeDistance={30}
                         >
-                            <div className="w-10 h-10 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
-                                <ChevronRight className="w-6 h-6 text-white" />
-                            </div>
+                            {/* Generate all pages */}
+                            {pagesData.map((page, index) => (
+                                <Page 
+                                    key={`page-${index}`}
+                                    pageData={page}
+                                    pageNumber={index}
+                                    width={pageWidth}
+                                    height={pageHeight}
+                                    isTextPage={false}
+                                />
+                            ))}
+                        </HTMLFlipBook>
+                    </div>
+                </div>
+            </div>
+
+            {/* Compact audio player at the bottom */}
+            <div className="flex bg-white border-t border-gray-200 py-2">
+                <div className="flex items-center px-4 gap-3 w-full justify-between">
+                    <div className="flex items-center gap-3">
+                        {/* Audio button */}
+                        <button
+                            onClick={handleSpeak}
+                            className={`rounded-full h-9 w-9 ${isReading ? 'bg-[#22B8EA]' : 'bg-white border-2 border-[#22B8EA]'} flex items-center justify-center transition-colors shadow-sm hover:opacity-90`}
+                            title="Read aloud"
+                        >
+                            <Volume2 className={`w-5 h-5 ${isReading ? 'text-white' : 'text-[#22B8EA]'}`} />
                         </button>
                         
-                        <div className="relative w-full h-full max-w-[90%] mx-auto">
-                            <div className={`h-full w-full transition-all duration-300 ${isFlipping ? `scale-95 opacity-90 ${flipDirection === 'left' ? 'translate-x-4' : 'translate-x-[-4px]'}` : 'scale-100 translate-x-0'}`}>
-                                <div className="h-full w-full flex flex-col bg-white shadow-xl rounded-md overflow-hidden">
-                                    {/* Extra-wide pages with images side by side - 80% height for images */}
-                                    <div className="flex-grow flex" style={{ height: '80%' }}>
-                                        {/* Left page */}
-                                        <div className="w-1/2 relative border-r border-gray-200 overflow-hidden bg-white">
-                                            {leftPage && (
-                                                <>
-                                                    {leftPage.isCover ? (
-                                                        <div className="h-full bg-gradient-to-br from-[#FFECD2] to-[#FFCACC] p-8 flex flex-col justify-between">
-                                                            <div className="text-center">
-                                                                <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                                                                    {story.title}
-                                                                </h1>
-                                                                <div className="w-32 h-32 md:w-40 md:h-40 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg">
-                                                                    <Sparkles className="w-16 h-16 md:w-20 md:h-20 text-purple-500" />
-                                                                </div>
-                                                            </div>
-                                                            <p className="text-center text-gray-700 font-medium">
-                                                                A Magical Story
-                                                            </p>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="h-full flex items-center justify-center bg-white">
-                                                            <img
-                                                                src={leftPage.illustration}
-                                                                alt={`Page ${leftPage.pageNumber}`}
-                                                                className="max-w-full max-h-full object-contain p-3"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-
-                                        {/* Right page - styled to match left page */}
-                                        <div className="w-1/2 relative overflow-hidden bg-white">
-                                            {rightPage && (
-                                                <>
-                                                    {rightPage.isCover ? (
-                                                        <div className="h-full bg-gradient-to-bl from-[#FFECD2] to-[#FFCACC] flex items-center justify-center">
-                                                            <p className="text-gray-600 text-lg italic">Turn the page to begin...</p>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="h-full flex items-center justify-center bg-white">
-                                                            <img
-                                                                src={rightPage.illustration}
-                                                                alt={`Page ${rightPage.pageNumber}`}
-                                                                className="max-w-full max-h-full object-contain p-3"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>                                    {/* Text boxes moved below pages */}
-                                    <div className="flex border-t border-gray-200 bg-[#F8F9FA]" style={{ height: '20%' }}>
-                                        {/* Left page text */}
-                                        <div className="w-1/2 border-r border-gray-200 p-3 overflow-auto">
-                                            {leftPage && !leftPage.isCover && (
-                                                <div className="bg-white rounded-lg p-3 shadow-md h-full flex items-center">
-                                                    <p className="text-gray-800 text-base font-medium leading-relaxed">
-                                                        {leftPage.text}
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {/* White box with title for cover page */}
-                                            {leftPage && leftPage.isCover && (
-                                                <div className="bg-white rounded-lg p-3 shadow-md h-full flex items-center justify-center">
-                                                    <div className="text-center">
-                                                        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
-                                                            {story.title}
-                                                        </h2>
-                                                        <p className="text-sm text-gray-600 mt-1">By SparkJoy AI</p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                        
-                                        {/* Right page text */}
-                                        <div className="w-1/2 p-3 overflow-auto">
-                                            {rightPage && !rightPage.isCover && (
-                                                <div className="bg-white rounded-lg p-3 shadow-md h-full flex items-center">
-                                                    <p className="text-gray-800 text-base font-medium leading-relaxed">
-                                                        {rightPage.text}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Audio progress */}
+                        <div className="w-40 h-2 relative hidden sm:block">
+                            <div className="absolute inset-0 rounded-full bg-gray-300"></div>
+                            <div
+                                className={`absolute inset-y-0 left-0 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-full transition-all duration-200 ${isReading ? 'animate-progress' : ''}`}
+                                style={{ width: isReading ? '70%' : '0%' }}
+                            ></div>
+                            <div className="absolute h-5 w-5 bg-white border-2 border-[#22B8EA] rounded-full shadow-md"
+                                style={{ top: '-5px', left: isReading ? '70%' : '0%', transform: 'translateX(-50%)' }}></div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            {/* Compact audio player at the bottom with reduced height */}
-            <div className="flex bg-white border-t border-gray-200 py-2">
-                <div className="flex items-center px-4 gap-3 w-full">
-                    <button
-                        onClick={handleSpeak}
-                        className={`rounded-full h-9 w-9 ${isReading ? 'bg-[#22B8EA]' : 'bg-white border-2 border-[#22B8EA]'} flex items-center justify-center transition-colors shadow-sm hover:opacity-90`}
-                    >
-                        <Volume2 className={`w-5 h-5 ${isReading ? 'text-white' : 'text-[#22B8EA]'}`} />
-                    </button>
-
-                    <div className="flex-grow h-2 relative">
-                        <div className="absolute inset-0 rounded-full bg-gray-300"></div>
-                        <div
-                            className={`absolute inset-y-0 left-0 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-full transition-all duration-200 ${isReading ? 'animate-progress' : ''}`}
-                            style={{ width: isReading ? '70%' : '0%' }}
-                        ></div>
-                        <div className="absolute h-5 w-5 bg-white border-2 border-[#22B8EA] rounded-full shadow-md"
-                            style={{ top: '-5px', left: isReading ? '70%' : '0%', transform: 'translateX(-50%)' }}></div>
-                    </div>
-
+                    
+                    {/* Center - page display */}
                     <div className="text-gray-600 text-xs font-bold">
-                        {currentSpread + 1}/{totalSpreads}
+                        {getPageDisplay()}
                     </div>
                 </div>
             </div>
 
+            {/* Help overlay */}
+            {showHelp && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onClick={() => setShowHelp(false)}>
+                    <div className="bg-white rounded-lg p-6 max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-800">Keyboard Shortcuts</h2>
+                            <button 
+                                onClick={() => setShowHelp(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-3 text-sm">
+                            <div className="flex justify-between">
+                                <span className="font-medium">Turn page forward</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded shadow-sm">→</kbd>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="font-medium">Turn page backward</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded shadow-sm">←</kbd>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="font-medium">Toggle read aloud</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded shadow-sm">m</kbd>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="font-medium">Go to first page</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded shadow-sm">Home</kbd>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="font-medium">Go to last page</span>
+                                <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded shadow-sm">End</kbd>
+                            </div>
+                        </div>
+                        
+                        <button 
+                            onClick={() => setShowHelp(false)}
+                            className="mt-6 w-full py-2 bg-[#22B8EA] text-white rounded-lg hover:bg-blue-500 transition-colors"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+            
+
+            
             {/* Enhanced CSS animations for the audio progress and page flipping */}
             <style jsx>{`
                 @keyframes progress {
@@ -415,11 +667,6 @@ const StoryViewer = () => {
                 }
                 .animate-progress {
                     animation: progress 20s linear;
-                }
-                
-                @keyframes flip {
-                    0% { transform: perspective(1500px) rotateY(0deg); }
-                    100% { transform: perspective(1500px) rotateY(180deg); }
                 }
                 
                 @keyframes float {
@@ -432,14 +679,149 @@ const StoryViewer = () => {
                     50% { transform: scale(1.05); }
                 }
                 
-                .flip-left {
-                    animation: flip 0.6s forwards;
+                @keyframes book-open {
+                    0% { transform: scale(0.8); opacity: 0.5; }
+                    100% { transform: scale(1); opacity: 1; }
                 }
                 
-                .flip-right {
-                    animation: flip 0.6s forwards reverse;
+                .animate-book-open {
+                    animation: book-open 1.5s ease-in-out infinite alternate;
+                }
+
+                /* Book container styling - even bigger with enhanced shadow */
+                .book-container {
+                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2), 10px 10px 20px rgba(0, 0, 0, 0.07), -10px 10px 20px rgba(0, 0, 0, 0.07);
+                    background-image: linear-gradient(to right, #f9f9f9, white, #f9f9f9);
+                    position: relative;
+                    border-radius: 8px 12px 12px 8px;
+                    border-left: 1px solid rgba(0,0,0,0.1);
+                    padding: 0;
+                    margin: 0 auto;
+                    width: auto !important;
+                    max-width: 100%;
                 }
                 
+                .book-container::before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 4px;
+                    background: rgba(0,0,0,0.06);
+                    border-radius: 2px;
+                    z-index: 10;
+                }
+                
+                /* HTMLFlipBook specific styling */
+                .book-flip {
+                    border-radius: 5px;
+                    background-color: transparent !important;
+                    margin: 0 auto !important;
+                }
+                
+                /* Force equal width for the stf__parent container */
+                .stf__parent > div {
+                    width: 50% !important;
+                }
+                
+                /* Page styling - enhanced for larger size */
+                .page-wrapper {
+                    perspective: 2500px;
+                    transform-style: preserve-3d;
+                    position: relative;
+                }
+                
+                .page {
+                    box-shadow: inset -2px 0 3px rgba(0,0,0,0.15);
+                    border-radius: 0 2px 2px 0;
+                    overflow: hidden;
+                }
+                
+                .page::after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    pointer-events: none;
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+                    z-index: 2;
+                }
+                
+                .page::before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    width: 3px;
+                    background: rgba(0, 0, 0, 0.05);
+                    z-index: 3;
+                }
+                
+                .page-content {
+                    z-index: 1;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                /* Cover page styling - enhanced for larger size */
+                .page-wrapper:first-child .page,
+                .page-wrapper:last-child .page {
+                    border-radius: 8px 0 0 8px;
+                    box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.12);
+                }
+
+                .page-wrapper:first-child .page::before {
+                    left: 0;
+                    background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.01));
+                }
+                
+                /* Right page styling - increased width for larger book */
+                .page-wrapper:nth-child(2n) .page::before {
+                    left: 0;
+                    width: 6px;
+                    background: linear-gradient(to right, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.01));
+                }
+                
+                /* Left page styling - increased width for larger book */
+                .page-wrapper:nth-child(2n+1) .page::before {
+                    right: 0;
+                    width: 6px;
+                    background: linear-gradient(to left, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.01));
+                }
+                
+                /* Ensure equal sizing for all pages */
+                .page-wrapper {
+                    flex: 0 0 auto !important;
+                    width: auto !important;
+                }
+                
+                /* Book text styling */
+                .book-text {
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    background-color: white;
+                    border-radius: 4px;
+                }
+
+                /* React Page Flip overrides - enhanced shadows for larger book */
+                .stf__parent {
+                    box-shadow: 0 0 30px rgba(0, 0, 0, 0.25) !important;
+                }
+
+                .stf__block {
+                    border: none !important;
+                    background-color: transparent !important;
+                }
+
+                .stf__item {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                /* Animations */
                 .float {
                     animation: float 3s ease-in-out infinite;
                 }
