@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { 
-    Sparkles, ChevronLeft, ChevronRight, Home, Volume2, 
-    Save, Settings, Share2, ArrowLeft, Star, Heart, 
-    ThumbsUp, Music, PauseCircle, PlayCircle 
+import {
+    Sparkles, ChevronLeft, ChevronRight, Home, Volume2,
+    Save, Settings, Share2, ArrowLeft, Star, Heart,
+    ThumbsUp, Music, PauseCircle, PlayCircle
 } from 'lucide-react';
 import { AuthContext } from './AuthProvider';
 import { saveStory } from '../services/api';
@@ -13,10 +13,10 @@ const StoryViewer = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const story = location.state?.story;
-    
+
     // Check if user is authenticated (has a token) or is a guest
     const isAuthenticated = user && user.token;
-    
+
     const [currentSpread, setCurrentSpread] = useState(0);
     const [isReading, setIsReading] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
@@ -39,7 +39,7 @@ const StoryViewer = () => {
 
     // Number of actual page spreads (excluding cover)
     const totalSpreads = Math.ceil((allPages.length - 1) / 2);
-    
+
     // Handle page navigation
     const goToSpread = (spread) => {
         if (spread >= 0 && spread < totalSpreads) {
@@ -52,14 +52,6 @@ const StoryViewer = () => {
             setCurrentSpread(spread);
             setTimeout(() => setIsFlipping(false), 500);
         }
-    };
-    
-    // Format page numbers for display like in SamplePage
-    const getFormattedPageDisplay = () => {
-        if (currentSpread === 0) {
-            return 'COVER';
-        }
-        return `PAGE ${currentSpread} OF ${totalSpreads - 1}`;
     };
 
     // Handle audio playback
@@ -130,25 +122,25 @@ const StoryViewer = () => {
     }, [audioPlayer]);
 
     // Set page background colors based on content or mood
-    const getPageBackground = (pageIndex) => {
-        const colors = [
-            "bg-gradient-to-br from-[#FFECD2] to-[#FFCACC]", // Cover gradient
-            "bg-[#F5FFE8]", // Light green
-            "bg-[#E9F7FF]", // Light blue
-            "bg-[#FFF5E9]", // Light orange
-            "bg-[#F9EBFF]", // Light purple
-            "bg-[#E9FFF2]"  // Light mint
-        ];
-        
-        // If it's a cover page, return the cover gradient
-        if (allPages[pageIndex]?.isCover) {
-            return colors[0];
-        }
-        
-        // Otherwise cycle through the other colors
-        const colorIndex = (pageIndex % (colors.length - 1)) + 1;
-        return colors[colorIndex];
-    };
+    // const getPageBackground = (pageIndex) => {
+    //     const colors = [
+    //         "bg-gradient-to-br from-[#FFECD2] to-[#FFCACC]", // Cover gradient
+    //         "bg-[#F5FFE8]", // Light green
+    //         "bg-[#E9F7FF]", // Light blue
+    //         "bg-[#FFF5E9]", // Light orange
+    //         "bg-[#F9EBFF]", // Light purple
+    //         "bg-[#E9FFF2]"  // Light mint
+    //     ];
+
+    //     // If it's a cover page, return the cover gradient
+    //     if (allPages[pageIndex]?.isCover) {
+    //         return colors[0];
+    //     }
+
+    //     // Otherwise cycle through the other colors
+    //     const colorIndex = (pageIndex % (colors.length - 1)) + 1;
+    //     return colors[colorIndex];
+    // };
 
     const leftPageIndex = currentSpread * 2;
     const rightPageIndex = currentSpread * 2 + 1;
@@ -227,7 +219,7 @@ const StoryViewer = () => {
             {/* Header bar - styled exactly like the SamplePage image with bright blue background */}
             <div className="bg-[#22B8EA] flex items-center justify-between px-4 py-2 z-20 shadow-md">
                 <div className="flex items-center space-x-3">
-                    <button 
+                    <button
                         onClick={() => navigate('/library')}
                         className="text-white hover:bg-blue-400 p-1 rounded-full transition-all"
                     >
@@ -236,7 +228,7 @@ const StoryViewer = () => {
                     <h1 className="text-white font-bold text-xl md:text-2xl truncate">
                         {story.title}
                     </h1>
-                </div>              
+                </div>
                 <div className="flex items-center space-x-3">
                     {isAuthenticated && (
                         <button className="text-white p-1.5 hover:bg-blue-400 rounded-full transition-all">
@@ -252,7 +244,7 @@ const StoryViewer = () => {
                             <Save className={`w-5 h-5 ${isSaving ? 'animate-pulse' : ''}`} />
                         </button>
                     )}
-                    <button 
+                    <button
                         onClick={() => navigate('/create')}
                         className="text-white p-1.5 hover:bg-blue-400 rounded-full transition-all"
                     >
@@ -260,38 +252,38 @@ const StoryViewer = () => {
                     </button>
                 </div>
             </div>
-            
+
             {/* Main content area with book display */}
             <div className="flex-grow relative overflow-hidden">
-                <div className="absolute inset-0 flex flex-col">          
+                <div className="absolute inset-0 flex flex-col">
                     <div className="bg-[#FF2E6F] text-white text-xs font-bold px-4 py-1 flex items-center shadow-sm">
-                       Page {currentSpread + 1} / {totalSpreads}
+                        Page {currentSpread + 1} / {totalSpreads}
                     </div>
-                    
-                    <div className="flex-grow flex items-center justify-center px-2 overflow-hidden bg-white">
-                        <div className="relative w-full h-full max-w-[95%] mx-auto">
-                            {/* Left navigation button */}
-                            <button
-                                onClick={prevSpread}
-                                disabled={currentSpread === 0}
-                                className={`absolute left-1 top-1/2 transform -translate-y-1/2 z-10 ${currentSpread === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
-                            >
-                                <div className="w-10 h-10 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
-                                    <ChevronLeft className="w-6 h-6 text-white" />
-                                </div>
-                            </button>
 
-                            {/* Right navigation button */}
-                            <button
-                                onClick={nextSpread}
-                                disabled={rightPageIndex >= allPages.length - 1}
-                                className={`absolute right-1 top-1/2 transform -translate-y-1/2 z-10 ${rightPageIndex >= allPages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
-                            >
-                                <div className="w-10 h-10 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
-                                    <ChevronRight className="w-6 h-6 text-white" />
-                                </div>
-                            </button>
-                            
+                    <div className="flex-grow flex items-center justify-center px-2 overflow-hidden bg-white">
+                        {/* Left navigation button - moved outside */}
+                        <button
+                            onClick={prevSpread}
+                            disabled={currentSpread === 0}
+                            className={`absolute left-6 top-1/2 transform -translate-y-1/2 z-20 ${currentSpread === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
+                        >
+                            <div className="w-10 h-10 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
+                                <ChevronLeft className="w-6 h-6 text-white" />
+                            </div>
+                        </button>
+
+                        {/* Right navigation button - moved outside */}
+                        <button
+                            onClick={nextSpread}
+                            disabled={rightPageIndex >= allPages.length - 1}
+                            className={`absolute right-6 top-1/2 transform -translate-y-1/2 z-20 ${rightPageIndex >= allPages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} transition-all`}
+                        >
+                            <div className="w-10 h-10 bg-[#22B8EA] rounded-full flex items-center justify-center shadow-md">
+                                <ChevronRight className="w-6 h-6 text-white" />
+                            </div>
+                        </button>
+                        
+                        <div className="relative w-full h-full max-w-[90%] mx-auto">
                             <div className={`h-full w-full transition-all duration-300 ${isFlipping ? `scale-95 opacity-90 ${flipDirection === 'left' ? 'translate-x-4' : 'translate-x-[-4px]'}` : 'scale-100 translate-x-0'}`}>
                                 <div className="h-full w-full flex flex-col bg-white shadow-xl rounded-md overflow-hidden">
                                     {/* Extra-wide pages with images side by side - 80% height for images */}
@@ -326,7 +318,7 @@ const StoryViewer = () => {
                                                 </>
                                             )}
                                         </div>
-                                        
+
                                         {/* Right page - styled to match left page */}
                                         <div className="w-1/2 relative overflow-hidden bg-white">
                                             {rightPage && (
@@ -347,9 +339,7 @@ const StoryViewer = () => {
                                                 </>
                                             )}
                                         </div>
-                                    </div>
-
-                                    {/* Text boxes moved below pages */}
+                                    </div>                                    {/* Text boxes moved below pages */}
                                     <div className="flex border-t border-gray-200 bg-[#F8F9FA]" style={{ height: '20%' }}>
                                         {/* Left page text */}
                                         <div className="w-1/2 border-r border-gray-200 p-3 overflow-auto">
@@ -358,6 +348,17 @@ const StoryViewer = () => {
                                                     <p className="text-gray-800 text-base font-medium leading-relaxed">
                                                         {leftPage.text}
                                                     </p>
+                                                </div>
+                                            )}
+                                            {/* White box with title for cover page */}
+                                            {leftPage && leftPage.isCover && (
+                                                <div className="bg-white rounded-lg p-3 shadow-md h-full flex items-center justify-center">
+                                                    <div className="text-center">
+                                                        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                                                            {story.title}
+                                                        </h2>
+                                                        <p className="text-sm text-gray-600 mt-1">By SparkJoy AI</p>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -379,7 +380,7 @@ const StoryViewer = () => {
                     </div>
                 </div>
             </div>
-            
+
             {/* Compact audio player at the bottom with reduced height */}
             <div className="flex bg-white border-t border-gray-200 py-2">
                 <div className="flex items-center px-4 gap-3 w-full">
@@ -389,23 +390,23 @@ const StoryViewer = () => {
                     >
                         <Volume2 className={`w-5 h-5 ${isReading ? 'text-white' : 'text-[#22B8EA]'}`} />
                     </button>
-                    
+
                     <div className="flex-grow h-2 relative">
                         <div className="absolute inset-0 rounded-full bg-gray-300"></div>
-                        <div 
+                        <div
                             className={`absolute inset-y-0 left-0 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-full transition-all duration-200 ${isReading ? 'animate-progress' : ''}`}
                             style={{ width: isReading ? '70%' : '0%' }}
                         ></div>
-                        <div className="absolute h-5 w-5 bg-white border-2 border-[#22B8EA] rounded-full shadow-md" 
+                        <div className="absolute h-5 w-5 bg-white border-2 border-[#22B8EA] rounded-full shadow-md"
                             style={{ top: '-5px', left: isReading ? '70%' : '0%', transform: 'translateX(-50%)' }}></div>
                     </div>
-                    
+
                     <div className="text-gray-600 text-xs font-bold">
                         {currentSpread + 1}/{totalSpreads}
                     </div>
                 </div>
             </div>
-            
+
             {/* Enhanced CSS animations for the audio progress and page flipping */}
             <style jsx>{`
                 @keyframes progress {
