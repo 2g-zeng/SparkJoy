@@ -78,7 +78,7 @@ const Page = React.forwardRef((props, ref) => {
                                     <img
                                         src={pageData.illustration}
                                         alt={`Page ${pageData.pageNumber}`}
-                                        className="max-w-full max-h-full object-contain p-3"
+                                        className="max-w-full max-h-full object-contain p-px"
                                     />
                                     <div className={`absolute bottom-3 ${isRightPage ? 'right-8' : 'left-8'} text-sm text-gray-500 font-serif`}>
                                         {pageData.pageNumber}
@@ -88,17 +88,17 @@ const Page = React.forwardRef((props, ref) => {
                         </div>
                         
                         {/* Text Area - Bottom 25% */}
-                        <div className="h-1/4 w-full p-2 flex items-center justify-center bg-[#F8F9FA]" 
+                        <div className="h-1/4 w-full  p-px flex items-center justify-center bg-[#F8F9FA]" 
                              style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
                             {!isCover && !isBackCover && pageData.text && (
-                                <div className="bg-white rounded-lg p-3 shadow-md h-full w-full flex items-center book-text overflow-auto">
+                                <div className="bg-white rounded-lg  p-1 shadow-md h-full w-full flex items-center book-text overflow-auto">
                                     <p className="text-gray-800 text-base md:text-lg font-medium leading-relaxed">
                                         {pageData.text}
                                     </p>
                                 </div>
                             )}
                             {isCover && (
-                                <div className="bg-white rounded-lg p-2 shadow-md h-full w-full flex items-center justify-center">
+                                <div className="bg-white rounded-lg p-1 shadow-md h-full w-full flex items-center justify-center">
                                     <div className="text-center">
                                         <h2 className="text-xl md:text-3xl font-bold text-gray-800">
                                             {pageData.title}
@@ -108,7 +108,7 @@ const Page = React.forwardRef((props, ref) => {
                                 </div>
                             )}
                             {isBackCover && (
-                                <div className="bg-white rounded-lg p-2 shadow-md h-full w-full flex items-center justify-center">
+                                <div className="bg-white rounded-lg  p-1 shadow-md h-full w-full flex items-center justify-center">
                                     <div className="text-center">
                                         <p className="text-gray-500 text-sm md:text-base italic">Thank you for reading!</p>
                                     </div>
@@ -172,14 +172,12 @@ const StoryViewer = () => {
         
         // Always add a back cover page with "The End" text
         // This ensures we have a proper ending and makes total pages even if needed
-        if (pages.length % 2 !== 0) {
-            pages.push({
-                pageNumber: pages.length,
-                text: "Thank you for reading!",
-                illustration: "",
-                isBackCover: true
-            });
-        }
+        pages.push({
+            pageNumber: pages.length,
+            text: "Thank you for reading!",
+            illustration: "",
+            isBackCover: true
+        });
         
         return pages;
     }, [story]);
@@ -666,180 +664,6 @@ const StoryViewer = () => {
                     </div>
                 </div>
             )}
-            
-
-            
-            {/* Enhanced CSS animations for the audio progress and page flipping */}
-            <style jsx>{`
-                @keyframes progress {
-                    0% { width: 0%; }
-                    100% { width: 100%; }
-                }
-                .animate-progress {
-                    animation: progress 20s linear;
-                }
-                
-                @keyframes float {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-5px); }
-                }
-                
-                @keyframes pulse {
-                    0%, 100% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                }
-                
-                @keyframes book-open {
-                    0% { transform: scale(0.8); opacity: 0.5; }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-                
-                .animate-book-open {
-                    animation: book-open 1.5s ease-in-out infinite alternate;
-                }
-
-                /* Book container styling - even bigger with enhanced shadow */
-                .book-container {
-                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2), 10px 10px 20px rgba(0, 0, 0, 0.07), -10px 10px 20px rgba(0, 0, 0, 0.07);
-                    background-image: linear-gradient(to right, #f9f9f9, white, #f9f9f9);
-                    position: relative;
-                    border-radius: 8px 12px 12px 8px;
-                    border-left: 1px solid rgba(0,0,0,0.1);
-                    padding: 0;
-                    margin: 0 auto;
-                    width: auto !important;
-                    max-width: 100%;
-                }
-                
-                .book-container::before {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 4px;
-                    background: rgba(0,0,0,0.06);
-                    border-radius: 2px;
-                    z-index: 10;
-                }
-                
-                /* HTMLFlipBook specific styling */
-                .book-flip {
-                    border-radius: 5px;
-                    background-color: transparent !important;
-                    margin: 0 auto !important;
-                }
-                
-                /* Force equal width for the stf__parent container */
-                .stf__parent > div {
-                    width: 50% !important;
-                }
-                
-                /* Page styling - enhanced for larger size */
-                .page-wrapper {
-                    perspective: 2500px;
-                    transform-style: preserve-3d;
-                    position: relative;
-                }
-                
-                .page {
-                    box-shadow: inset -2px 0 3px rgba(0,0,0,0.15);
-                    border-radius: 0 2px 2px 0;
-                    overflow: hidden;
-                }
-                
-                .page::after {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    pointer-events: none;
-                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-                    z-index: 2;
-                }
-                
-                .page::before {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    bottom: 0;
-                    width: 3px;
-                    background: rgba(0, 0, 0, 0.05);
-                    z-index: 3;
-                }
-                
-                .page-content {
-                    z-index: 1;
-                    position: relative;
-                    display: flex;
-                    flex-direction: column;
-                }
-                
-                /* Cover page styling - enhanced for larger size */
-                .page-wrapper:first-child .page,
-                .page-wrapper:last-child .page {
-                    border-radius: 8px 0 0 8px;
-                    box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.12);
-                }
-
-                .page-wrapper:first-child .page::before {
-                    left: 0;
-                    background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.01));
-                }
-                
-                /* Right page styling - increased width for larger book */
-                .page-wrapper:nth-child(2n) .page::before {
-                    left: 0;
-                    width: 6px;
-                    background: linear-gradient(to right, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.01));
-                }
-                
-                /* Left page styling - increased width for larger book */
-                .page-wrapper:nth-child(2n+1) .page::before {
-                    right: 0;
-                    width: 6px;
-                    background: linear-gradient(to left, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.01));
-                }
-                
-                /* Ensure equal sizing for all pages */
-                .page-wrapper {
-                    flex: 0 0 auto !important;
-                    width: auto !important;
-                }
-                
-                /* Book text styling */
-                .book-text {
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                    background-color: white;
-                    border-radius: 4px;
-                }
-
-                /* React Page Flip overrides - enhanced shadows for larger book */
-                .stf__parent {
-                    box-shadow: 0 0 30px rgba(0, 0, 0, 0.25) !important;
-                }
-
-                .stf__block {
-                    border: none !important;
-                    background-color: transparent !important;
-                }
-
-                .stf__item {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                }
-
-                /* Animations */
-                .float {
-                    animation: float 3s ease-in-out infinite;
-                }
-                
-                .pulse {
-                    animation: pulse 2s ease-in-out infinite;
-                }
-            `}</style>
         </div>
     );
 };

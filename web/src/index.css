@@ -1,3 +1,152 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* StoryViewer Component Styles */
+
+/* Essential animations used in the component */
+@keyframes progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+.animate-progress {
+    animation: progress 20s linear;
+}
+
+@keyframes book-open {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-book-open {
+    animation: book-open 1.5s ease-in-out infinite alternate;
+}
+
+/* Book container styling */
+.book-container {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2), 10px 10px 20px rgba(0, 0, 0, 0.07), -10px 10px 20px rgba(0, 0, 0, 0.07);
+    background-image: linear-gradient(to right, #f9f9f9, white, #f9f9f9);
+    position: relative;
+    border-radius: 8px 12px 12px 8px;
+    border-left: 1px solid rgba(0,0,0,0.1);
+    padding: 0;
+    margin: 0 auto;
+    width: auto !important;
+    max-width: 100%;
+}
+
+.book-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 2px;
+    z-index: 10;
+}
+
+/* HTMLFlipBook specific styling */
+.book-flip {
+    border-radius: 5px;
+    background-color: transparent !important;
+    margin: 0 auto !important;
+}
+
+/* Force equal width for the stf__parent container */
+.stf__parent > div {
+    width: 50% !important;
+}
+
+/* Page styling */
+.page-wrapper {
+    perspective: 2500px;
+    transform-style: preserve-3d;
+    position: relative;
+    flex: 0 0 auto !important;
+    width: auto !important;
+}
+
+.page {
+    box-shadow: inset -2px 0 3px rgba(0,0,0,0.15);
+    border-radius: 0 2px 2px 0;
+    overflow: hidden;
+}
+
+.page::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    z-index: 2;
+}
+
+.page::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    z-index: 3;
+}
+
+.page-content {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cover and back page styling */
+.page-wrapper:first-child .page,
+.page-wrapper:last-child .page {
+    border-radius: 8px 0 0 8px;
+    box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.12);
+}
+
+.page-wrapper:first-child .page::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.01));
+}
+
+/* Right page styling */
+.page-wrapper:nth-child(2n) .page::before {
+    left: 0;
+    width: 6px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.01));
+}
+
+/* Left page styling */
+.page-wrapper:nth-child(2n+1) .page::before {
+    right: 0;
+    width: 6px;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.01));
+}
+
+/* Book text styling */
+.book-text {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: white;
+    border-radius: 4px;
+}
+
+/* React Page Flip overrides */
+.stf__parent {
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+.stf__block {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.stf__item {
+    margin: 0 !important;
+    padding: 0 !important;
+}
