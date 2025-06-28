@@ -22,6 +22,7 @@ const Page = React.forwardRef((props, ref) => {
     
     const isPageEmpty = !pageData;
     const isCover = pageData?.isCover;
+    const isBackCover = pageData?.isBackCover;
     const isRightPage = pageNumber % 2 === 0; // Even page numbers are on the right side
     
     const pageStyle = {
@@ -34,23 +35,20 @@ const Page = React.forwardRef((props, ref) => {
     };
     
     // For cover page, use special styling
-    if (isCover) {
-        // Enhanced cover page gradient that works well as a standalone page
-        pageStyle.background = 'linear-gradient(135deg, #FFECD2 0%, #FFCACC 100%)';
-        pageStyle.backgroundSize = '100% 100%';
-        // Add a subtle pattern overlay for texture
-        pageStyle.backgroundImage = 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")';
-    }
+    // if (isCover) {
+    //     // Enhanced cover page gradient that works well as a standalone page
+    //     pageStyle.background = 'linear-gradient(135deg, #FFECD2 0%, #FFCACC 100%)';
+    //     pageStyle.backgroundSize = '100% 100%';
+    //     //pageStyle.backgroundImage = 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")';
+    // }
     
     return (
         <div className={`page-wrapper ${className}`} ref={ref}>
             <div className="page" style={pageStyle}>
                 {!isPageEmpty && (
                     <div className="page-content h-full">
-                        {/* Image Area - Top 75% */}
                         <div className="h-3/4 w-full overflow-hidden relative">
                             {isCover ? (
-                                // Cover page content - only one cover page now
                                 <div className="h-full p-8 flex flex-col justify-between">
                                     <div className="text-center">
                                         <h1 className="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
@@ -63,6 +61,16 @@ const Page = React.forwardRef((props, ref) => {
                                     <p className="text-center text-gray-700 font-medium">
                                         A Magical Story
                                     </p>
+                                </div>
+                            ) : isBackCover ? (
+                                // Back cover with "End" text
+                                <div className="h-full flex items-center justify-center bg-white relative">
+                                    <div className="text-center">
+                                        <h2 className="text-4xl md:text-6xl font-bold text-gray-400">The End</h2>
+                                        <div className="mt-8 w-20 h-20 md:w-24 md:h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center shadow-md">
+                                            <Sparkles className="w-12 h-12 text-gray-300" />
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 // Regular page image content
@@ -82,7 +90,7 @@ const Page = React.forwardRef((props, ref) => {
                         {/* Text Area - Bottom 25% */}
                         <div className="h-1/4 w-full p-2 flex items-center justify-center bg-[#F8F9FA]" 
                              style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
-                            {!isCover && pageData.text && (
+                            {!isCover && !isBackCover && pageData.text && (
                                 <div className="bg-white rounded-lg p-3 shadow-md h-full w-full flex items-center book-text overflow-auto">
                                     <p className="text-gray-800 text-base md:text-lg font-medium leading-relaxed">
                                         {pageData.text}
@@ -99,11 +107,17 @@ const Page = React.forwardRef((props, ref) => {
                                     </div>
                                 </div>
                             )}
+                            {isBackCover && (
+                                <div className="bg-white rounded-lg p-2 shadow-md h-full w-full flex items-center justify-center">
+                                    <div className="text-center">
+                                        <p className="text-gray-500 text-sm md:text-base italic">Thank you for reading!</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
                 
-                {/* Page edge shadow effect - consistent width and style for both sides */}
                 <div className={`absolute top-0 ${isRightPage ? 'left-0 bg-gradient-to-r' : 'right-0 bg-gradient-to-l'} bottom-0 w-10 from-gray-200 to-transparent opacity-50 z-10 pointer-events-none`}></div>
             </div>
         </div>
@@ -156,11 +170,12 @@ const StoryViewer = () => {
             });
         }
         
-        // Add a back cover page if needed to make total pages even
+        // Always add a back cover page with "The End" text
+        // This ensures we have a proper ending and makes total pages even if needed
         if (pages.length % 2 !== 0) {
             pages.push({
                 pageNumber: pages.length,
-                text: "",
+                text: "Thank you for reading!",
                 illustration: "",
                 isBackCover: true
             });
@@ -440,7 +455,6 @@ const StoryViewer = () => {
 
     return (
         <div className="fixed inset-0 bg-[#EDF6E5] z-50 overflow-hidden flex flex-col">
-            {/* Header bar - bright blue background */}
             <div className="bg-[#22B8EA] flex items-center justify-between px-4 py-2 z-20 shadow-md">
                 <div className="flex items-center space-x-3">
                     <button
@@ -483,17 +497,14 @@ const StoryViewer = () => {
                 </div>
             </div>
 
-            {/* Page status banner */}
             <div className="bg-[#FF2E6F] text-white text-xs font-bold px-4 py-1 flex items-center shadow-sm">
                 {getPageDisplay()}
             </div>
 
-            {/* Main content area with book display */}
             <div 
                 className="flex-grow relative overflow-hidden bg-white flex items-center justify-center"
                 ref={containerRef}
             >
-                {/* Loading overlay */}
                 {isLoading && (
                     <div className="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center">
                         <div className="relative w-24 h-24 mb-4">
@@ -532,7 +543,6 @@ const StoryViewer = () => {
                     </div>
                 </button>
 
-                {/* Book container with shadow effects */}
                 <div className="book-container-wrapper relative w-full h-full max-w-[98%] mx-auto flex items-center justify-center">
                     {/* Book shadow underneath for 3D effect - enlarged */}
                     <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-[98%] h-12 bg-black opacity-20 blur-md rounded-full"></div>
