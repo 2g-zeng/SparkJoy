@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Sparkles, ChevronLeft, ChevronRight, Home, Volume2,
     Save, Settings, Share2, ArrowLeft, Star, Heart,
-    ThumbsUp, Music, PauseCircle, PlayCircle
+    ThumbsUp, Music, PauseCircle, PlayCircle, Printer
 } from 'lucide-react';
 import HTMLFlipBook from 'react-pageflip';
 import { AuthContext } from './AuthProvider';
@@ -118,7 +118,7 @@ const Page = React.forwardRef((props, ref) => {
                     </div>
                 )}
                 
-                <div className={`absolute top-0 ${isRightPage ? 'left-0 bg-gradient-to-r' : 'right-0 bg-gradient-to-l'} bottom-0 w-10 from-gray-200 to-transparent opacity-50 z-10 pointer-events-none`}></div>
+                <div className={`absolute top-0 ${isRightPage ? 'left-0 bg-gradient-to-r' : 'right-0 bg-gradient-to-l'} bottom-0 w-4 from-gray-200 to-transparent opacity-50 z-10 pointer-events-none`}></div>
             </div>
         </div>
     );
@@ -471,6 +471,9 @@ const StoryViewer = () => {
                             <Share2 className="w-5 h-5" />
                         </button>
                     )}
+                    <button className="text-white p-1.5 hover:bg-blue-400 rounded-full transition-all">
+                        <Printer className="w-5 h-5" />
+                    </button>
                     {isAuthenticated && (
                         <button
                             onClick={handleSaveStory}
