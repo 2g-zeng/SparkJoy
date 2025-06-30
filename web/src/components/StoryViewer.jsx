@@ -47,7 +47,7 @@ const Page = React.forwardRef((props, ref) => {
             <div className="page" style={pageStyle}>
                 {!isPageEmpty && (
                     <div className="page-content h-full">
-                        <div className="h-3/4 w-full overflow-hidden relative">
+                        <div className="h-5/6 w-full overflow-hidden relative">
                             {isCover ? (
                                 <div className="h-full p-8 flex flex-col justify-between">
                                     <div className="text-center">
@@ -87,8 +87,8 @@ const Page = React.forwardRef((props, ref) => {
                             )}
                         </div>
                         
-                        {/* Text Area - Bottom 25% */}
-                        <div className="h-1/4 w-full  p-px flex items-center justify-center bg-[#F8F9FA]" 
+                        {/* Text Area - Bottom 16.67% (1/6) */}
+                        <div className="h-1/6 w-full  p-px flex items-center justify-center bg-[#F8F9FA]" 
                              style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
                             {!isCover && !isBackCover && pageData.text && (
                                 <div className="bg-white rounded-lg  p-1 shadow-md h-full w-full flex items-center book-text overflow-auto">
@@ -138,8 +138,8 @@ const StoryViewer = () => {
     const [audioPlayer, setAudioPlayer] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setError] = useState('');
-    const [pageWidth, setPageWidth] = useState(550); // Increased from 480
-    const [pageHeight, setPageHeight] = useState(825); // Increased from 720
+    const [pageWidth, setPageWidth] = useState(800); // Increased significantly for bigger book
+    const [pageHeight, setPageHeight] = useState(1000); // Increased significantly for bigger book
     const [orientation, setOrientation] = useState("landscape");
     const [isLoading, setIsLoading] = useState(true);
     const [showHelp, setShowHelp] = useState(false);
@@ -357,37 +357,37 @@ const StoryViewer = () => {
                 
                 // Calculate ideal page dimensions while maintaining a book-like aspect ratio
                 // Make the book bigger by using more of the available space
-                const targetRatio = 1.3; // height/width ratio for a single page (slightly wider)
+                const targetRatio = 1.1; // height/width ratio for a single page (even wider for bigger book)
                 
                 let newWidth, newHeight;
                 
                 if (isLandscape) {
-                    // Use 95% of available height (increased from 90%)
-                    newHeight = containerHeight * 0.95;
+                    // Use 98% of available height (increased from 95%)
+                    newHeight = containerHeight * 0.98;
                     // Calculate width based on the target ratio
                     newWidth = newHeight / targetRatio;
                     
                     // Ensure the total width (2 pages) isn't too wide
-                    if (newWidth * 2 > containerWidth * 0.98) { // Use more width (98% vs 95%)
-                        newWidth = (containerWidth * 0.98) / 2;
+                    if (newWidth * 2 > containerWidth * 0.99) { // Use even more width (99% vs 98%)
+                        newWidth = (containerWidth * 0.99) / 2;
                         newHeight = newWidth * targetRatio;
                     }
                 } else {
-                    // Portrait mode - use 98% of available width for a single page
-                    newWidth = containerWidth * 0.98;
+                    // Portrait mode - use 99% of available width for a single page
+                    newWidth = containerWidth * 0.99;
                     newHeight = newWidth * targetRatio;
                     
                     // Ensure height isn't too tall
-                    if (newHeight > containerHeight * 0.95) { // Use more height (95% vs 90%)
-                        newHeight = containerHeight * 0.95;
+                    if (newHeight > containerHeight * 0.98) { // Use more height (98% vs 95%)
+                        newHeight = containerHeight * 0.98;
                         newWidth = newHeight / targetRatio;
                     }
                 }
                 
                 // Set dimensions, ensuring they're not smaller than minimum sizes
-                // Increase minimum sizes further
-                setPageWidth(Math.max(420, Math.floor(newWidth)));
-                setPageHeight(Math.max(550, Math.floor(newHeight)));
+                // Increase minimum sizes significantly for much larger book
+                setPageWidth(Math.max(650, Math.floor(newWidth))); // Increased minimum from 500 to 650
+                setPageHeight(Math.max(800, Math.floor(newHeight))); // Increased minimum from 650 to 800
             }
         };
         
@@ -554,10 +554,10 @@ const StoryViewer = () => {
                             width={pageWidth}
                             height={pageHeight}
                             size="fixed"
-                            minWidth={420}
-                            maxWidth={1100}
-                            minHeight={550}
-                            maxHeight={1500}
+                            minWidth={650}
+                            maxWidth={1400}
+                            minHeight={800}
+                            maxHeight={1800}
                             maxShadowOpacity={0.5}
                             showCover={true}
                             startZIndex={5}
