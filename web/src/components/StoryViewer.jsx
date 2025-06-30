@@ -2,8 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Sparkles, ChevronLeft, ChevronRight, Home, Volume2,
-    Save, Settings, Share2, ArrowLeft, Star, Heart,
-    ThumbsUp, Music, PauseCircle, PlayCircle, Printer
+    Save, Settings, Share2, ArrowLeft, Printer
 } from 'lucide-react';
 import HTMLFlipBook from 'react-pageflip';
 import { AuthContext } from './AuthProvider';
@@ -16,7 +15,6 @@ const Page = React.forwardRef((props, ref) => {
         pageNumber, 
         width, 
         height, 
-        isTextPage = false,
         className = ""
     } = props;
     
@@ -33,14 +31,6 @@ const Page = React.forwardRef((props, ref) => {
         backgroundSize: '300px',
         position: 'relative'
     };
-    
-    // For cover page, use special styling
-    // if (isCover) {
-    //     // Enhanced cover page gradient that works well as a standalone page
-    //     pageStyle.background = 'linear-gradient(135deg, #FFECD2 0%, #FFCACC 100%)';
-    //     pageStyle.backgroundSize = '100% 100%';
-    //     //pageStyle.backgroundImage = 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")';
-    // }
     
     return (
         <div className={`page-wrapper ${className}`} ref={ref}>
@@ -86,7 +76,6 @@ const Page = React.forwardRef((props, ref) => {
                                 </div>
                             )}
                         </div>
-                        
                         {/* Text Area - Fixed small height to minimize white space */}
                         <div className="h-16 w-full p-1 flex items-center justify-center bg-[#F8F9FA]" 
                              style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
@@ -137,9 +126,8 @@ const StoryViewer = () => {
     const [isReading, setIsReading] = useState(false);
     const [audioPlayer, setAudioPlayer] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [saveError, setError] = useState('');
-    const [pageWidth, setPageWidth] = useState(950); // Increased for much wider book
-    const [pageHeight, setPageHeight] = useState(1000); // Kept height, making it wider
+    const [pageWidth, setPageWidth] = useState(950);
+    const [pageHeight, setPageHeight] = useState(1000);
     const [orientation, setOrientation] = useState("landscape");
     const [isLoading, setIsLoading] = useState(true);
     const [showHelp, setShowHelp] = useState(false);
@@ -151,7 +139,7 @@ const StoryViewer = () => {
     const pagesData = React.useMemo(() => {
         const pages = [];
         
-        // Add cover page as a single page (no "turn the page to begin" page)
+        // Add cover page as a single page
         pages.push({
             pageNumber: 0,
             text: "",
@@ -160,18 +148,17 @@ const StoryViewer = () => {
             title: story?.title
         });
         
-        // Add story pages - start directly with the content
+        // Add story pages
         if (story?.pages) {
             story.pages.forEach(page => {
                 pages.push({
                     ...page,
-                    pageNumber: parseInt(page.pageNumber) // No need to adjust page numbers as much
+                    pageNumber: parseInt(page.pageNumber)
                 });
             });
         }
         
-        // Always add a back cover page with "The End" text
-        // This ensures we have a proper ending and makes total pages even if needed
+        // Add back cover page
         pages.push({
             pageNumber: pages.length,
             text: "Thank you for reading!",
@@ -271,9 +258,6 @@ const StoryViewer = () => {
     // Get current visible pages
     const getCurrentVisiblePages = () => {
         // In a flip book, even pages are on the right and odd pages are on the left
-        // When current page is even, we're looking at pages current and current+1
-        // When current page is odd, we're looking at pages current-1 and current
-        
         const pages = [];
         
         if (currentPage % 2 === 0) {
@@ -356,19 +340,18 @@ const StoryViewer = () => {
                 setOrientation(isLandscape ? "landscape" : "portrait");
                 
                 // Calculate ideal page dimensions while maintaining a book-like aspect ratio
-                // Make the book bigger by using more of the available space
-                const targetRatio = 1.0; // height/width ratio for a single page (much wider book - almost square)
+                const targetRatio = 1.0; // height/width ratio for a single page
                 
                 let newWidth, newHeight;
                 
                 if (isLandscape) {
-                    // Use 98% of available height (increased from 95%)
+                    // Use 98% of available height
                     newHeight = containerHeight * 0.98;
                     // Calculate width based on the target ratio
                     newWidth = newHeight / targetRatio;
                     
                     // Ensure the total width (2 pages) isn't too wide
-                    if (newWidth * 2 > containerWidth * 0.99) { // Use even more width (99% vs 98%)
+                    if (newWidth * 2 > containerWidth * 0.99) {
                         newWidth = (containerWidth * 0.99) / 2;
                         newHeight = newWidth * targetRatio;
                     }
@@ -378,16 +361,15 @@ const StoryViewer = () => {
                     newHeight = newWidth * targetRatio;
                     
                     // Ensure height isn't too tall
-                    if (newHeight > containerHeight * 0.98) { // Use more height (98% vs 95%)
+                    if (newHeight > containerHeight * 0.98) {
                         newHeight = containerHeight * 0.98;
                         newWidth = newHeight / targetRatio;
                     }
                 }
                 
                 // Set dimensions, ensuring they're not smaller than minimum sizes
-                // Increase minimum sizes significantly for much larger book
-                setPageWidth(Math.max(800, Math.floor(newWidth))); // Increased minimum for wider book
-                setPageHeight(Math.max(800, Math.floor(newHeight))); // Increased minimum from 650 to 800
+                setPageWidth(Math.max(800, Math.floor(newWidth)));
+                setPageHeight(Math.max(800, Math.floor(newHeight)));
             }
         };
         
@@ -404,9 +386,8 @@ const StoryViewer = () => {
     
     // Generate page numbers display
     const getPageDisplay = () => {
-        // Adjust for single cover page
         const adjustedCurrentPage = currentPage === 0 ? 0 : currentPage;
-        const adjustedTotalPages = Math.max(1, totalPages - 1); // -1 because cover doesn't count
+        const adjustedTotalPages = Math.max(1, totalPages - 1);
         
         if (currentPage === 0) {
             return 'Cover';
@@ -436,14 +417,11 @@ const StoryViewer = () => {
     const handleSaveStory = async () => {
         try {
             setIsSaving(true);
-            setError('');
             await saveStory(user.token, story, user.username);
             
             // Show success feedback
             showNotification('Story saved successfully!', 'success');
         } catch (error) {
-            setError(error.message);
-            
             // Show error feedback
             showNotification(error.message, 'error');
         } finally {
@@ -511,14 +489,14 @@ const StoryViewer = () => {
                         <div className="relative w-24 h-24 mb-4">
                             <div className="animate-book-open w-full h-full">
                                 <div className="absolute w-16 h-20 bg-gradient-to-r from-[#FFECD2] to-[#FFCACC] rounded-r-md rounded-b-md shadow-md left-4 top-2"></div>
-                                <div className="absolute w-16 h-20 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-l-md rounded-b-md shadow-md right-4 top-2 origin-right animate-page-flip"></div>
+                                <div className="absolute w-16 h-20 bg-gradient-to-r from-[#22B8EA] to-[#5FCEFF] rounded-l-md rounded-b-md shadow-md right-4 top-2 origin-left animate-page-flip"></div>
                             </div>
                             <Sparkles className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-purple-500" />
                         </div>
                         <p className="text-gray-500 text-sm animate-pulse">Loading your magical storybook...</p>
                     </div>
                 )}
-                {/* Left navigation button - moved further out with larger size */}
+                {/* Left navigation button */}
                 <button
                     onClick={prevPage}
                     disabled={currentPage <= 0}
@@ -531,7 +509,7 @@ const StoryViewer = () => {
                     </div>
                 </button>
 
-                {/* Right navigation button - moved further out with larger size */}
+                {/* Right navigation button */}
                 <button
                     onClick={nextPage}
                     disabled={currentPage >= totalPages - 1}
@@ -545,7 +523,7 @@ const StoryViewer = () => {
                 </button>
 
                 <div className="book-container-wrapper relative w-full h-full max-w-[98%] mx-auto flex items-center justify-center">
-                    {/* Book shadow underneath for 3D effect - enlarged */}
+                    {/* Book shadow underneath for 3D effect */}
                     <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-[98%] h-12 bg-black opacity-20 blur-md rounded-full"></div>
                     
                     {/* Actual flipbook */}
@@ -581,7 +559,6 @@ const StoryViewer = () => {
                                     pageNumber={index}
                                     width={pageWidth}
                                     height={pageHeight}
-                                    isTextPage={false}
                                 />
                             ))}
                         </HTMLFlipBook>

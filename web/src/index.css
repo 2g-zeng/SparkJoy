@@ -22,6 +22,16 @@
     animation: book-open 1.5s ease-in-out infinite alternate;
 }
 
+@keyframes page-flip {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(-90deg); }
+    100% { transform: rotateY(-180deg); }
+}
+
+.animate-page-flip {
+    animation: page-flip 2s ease-in-out infinite;
+}
+
 /* Book container styling */
 .book-container {
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2), 10px 10px 20px rgba(0, 0, 0, 0.07), -10px 10px 20px rgba(0, 0, 0, 0.07);
