@@ -47,7 +47,7 @@ const Page = React.forwardRef((props, ref) => {
             <div className="page" style={pageStyle}>
                 {!isPageEmpty && (
                     <div className="page-content h-full">
-                        <div className="h-5/6 w-full overflow-hidden relative">
+                        <div className="flex-1 w-full overflow-hidden relative">
                             {isCover ? (
                                 <div className="h-full p-8 flex flex-col justify-between">
                                     <div className="text-center">
@@ -87,30 +87,30 @@ const Page = React.forwardRef((props, ref) => {
                             )}
                         </div>
                         
-                        {/* Text Area - Bottom 16.67% (1/6) */}
-                        <div className="h-1/6 w-full  p-px flex items-center justify-center bg-[#F8F9FA]" 
+                        {/* Text Area - Fixed small height to minimize white space */}
+                        <div className="h-16 w-full p-1 flex items-center justify-center bg-[#F8F9FA]" 
                              style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
                             {!isCover && !isBackCover && pageData.text && (
-                                <div className="bg-white rounded-lg  p-1 shadow-md h-full w-full flex items-center book-text overflow-auto">
-                                    <p className="text-gray-800 text-base md:text-lg font-medium leading-relaxed">
+                                <div className="bg-white rounded-md p-2 shadow-sm h-full w-full flex items-center book-text overflow-hidden">
+                                    <p className="text-gray-800 text-sm font-medium leading-tight line-clamp-2">
                                         {pageData.text}
                                     </p>
                                 </div>
                             )}
                             {isCover && (
-                                <div className="bg-white rounded-lg p-1 shadow-md h-full w-full flex items-center justify-center">
+                                <div className="bg-white rounded-md p-2 shadow-sm h-full w-full flex items-center justify-center">
                                     <div className="text-center">
-                                        <h2 className="text-xl md:text-3xl font-bold text-gray-800">
+                                        <h2 className="text-lg font-bold text-gray-800">
                                             {pageData.title}
                                         </h2>
-                                        <p className="text-sm md:text-base text-gray-600 mt-2">By SparkJoy AI</p>
+                                        <p className="text-xs text-gray-600 mt-1">By SparkJoy AI</p>
                                     </div>
                                 </div>
                             )}
                             {isBackCover && (
-                                <div className="bg-white rounded-lg  p-1 shadow-md h-full w-full flex items-center justify-center">
+                                <div className="bg-white rounded-md p-2 shadow-sm h-full w-full flex items-center justify-center">
                                     <div className="text-center">
-                                        <p className="text-gray-500 text-sm md:text-base italic">Thank you for reading!</p>
+                                        <p className="text-gray-500 text-sm italic">Thank you for reading!</p>
                                     </div>
                                 </div>
                             )}
@@ -138,8 +138,8 @@ const StoryViewer = () => {
     const [audioPlayer, setAudioPlayer] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setError] = useState('');
-    const [pageWidth, setPageWidth] = useState(800); // Increased significantly for bigger book
-    const [pageHeight, setPageHeight] = useState(1000); // Increased significantly for bigger book
+    const [pageWidth, setPageWidth] = useState(950); // Increased for much wider book
+    const [pageHeight, setPageHeight] = useState(1000); // Kept height, making it wider
     const [orientation, setOrientation] = useState("landscape");
     const [isLoading, setIsLoading] = useState(true);
     const [showHelp, setShowHelp] = useState(false);
@@ -357,7 +357,7 @@ const StoryViewer = () => {
                 
                 // Calculate ideal page dimensions while maintaining a book-like aspect ratio
                 // Make the book bigger by using more of the available space
-                const targetRatio = 1.1; // height/width ratio for a single page (even wider for bigger book)
+                const targetRatio = 1.0; // height/width ratio for a single page (much wider book - almost square)
                 
                 let newWidth, newHeight;
                 
@@ -386,7 +386,7 @@ const StoryViewer = () => {
                 
                 // Set dimensions, ensuring they're not smaller than minimum sizes
                 // Increase minimum sizes significantly for much larger book
-                setPageWidth(Math.max(650, Math.floor(newWidth))); // Increased minimum from 500 to 650
+                setPageWidth(Math.max(800, Math.floor(newWidth))); // Increased minimum for wider book
                 setPageHeight(Math.max(800, Math.floor(newHeight))); // Increased minimum from 650 to 800
             }
         };
@@ -554,8 +554,8 @@ const StoryViewer = () => {
                             width={pageWidth}
                             height={pageHeight}
                             size="fixed"
-                            minWidth={650}
-                            maxWidth={1400}
+                            minWidth={800}
+                            maxWidth={1800}
                             minHeight={800}
                             maxHeight={1800}
                             maxShadowOpacity={0.5}
