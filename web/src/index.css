@@ -1,6 +1,81 @@
+/* Import child-friendly Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Comic+Neue:wght@300;400;700&family=Bubblegum+Sans&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Typography System for Children */
+:root {
+  /* Font Families - Child-friendly fonts */
+  --font-heading: 'Fredoka', 'Bubblegum Sans', cursive; /* Playful, rounded font for headings */
+  --font-body: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-story: 'Comic Neue', 'Fredoka', cursive; /* Child-friendly font for story text */
+  
+  /* Enhanced readability settings */
+  --story-line-height: 1.8;
+  --story-letter-spacing: 0.02em;
+  --heading-letter-spacing: 0.01em;
+}
+
+/* Base Typography Styles */
+@layer base {
+  html {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: var(--heading-letter-spacing);
+  }
+  
+  /* Button text */
+  button {
+    font-family: var(--font-body);
+    font-weight: 500;
+  }
+  
+  /* Input text */
+  input, textarea {
+    font-family: var(--font-body);
+  }
+}
+
+/* Custom Typography Utility Classes */
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading) !important;
+  }
+  
+  .font-body {
+    font-family: var(--font-body) !important;
+  }
+  
+  .font-story {
+    font-family: var(--font-story) !important;
+  }
+  
+  .text-story {
+    font-family: var(--font-story) !important;
+    line-height: var(--story-line-height) !important;
+    letter-spacing: var(--story-letter-spacing) !important;
+  }
+  
+  .heading-playful {
+    font-family: var(--font-heading) !important;
+    font-weight: 600 !important;
+    letter-spacing: var(--heading-letter-spacing) !important;
+  }
+}
 
 /* StoryViewer Component Styles */
 
@@ -144,6 +219,19 @@
     border: 1px solid rgba(0, 0, 0, 0.05);
     background-color: white;
     border-radius: 4px;
+}
+
+/* Enhanced story text styling */
+.book-text p {
+    font-family: var(--font-story) !important;
+    line-height: var(--story-line-height) !important;
+    letter-spacing: var(--story-letter-spacing) !important;
+    font-size: 14px !important;
+}
+
+/* Enhanced readability for page numbers */
+.page .text-sm {
+    font-family: var(--font-body);
 }
 
 /* React Page Flip overrides */

@@ -16,13 +16,13 @@ const Header = () => {
                 <div className="flex justify-between h-16 items-center">
                     <div className="flex items-center">
                         <BookOpen className="w-8 h-8 text-purple-500" />
-                        <span className="ml-2 text-xl font-bold text-gray-800">Magic Storybook</span>
+                        <span className="ml-2 text-xl font-heading font-bold text-gray-800">Magic Storybook</span>
                     </div>
                     
                     <div className="flex items-center space-x-4">
                         <button
                             onClick={() => navigate('/create')}
-                            className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800"
+                            className="px-4 py-2 text-sm font-body font-medium text-purple-600 hover:text-purple-800"
                         >
                             Create Story
                         </button>
@@ -31,7 +31,7 @@ const Header = () => {
                         {isAuthenticated && (
                             <button
                                 onClick={() => navigate('/library')}
-                                className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800"
+                                className="px-4 py-2 text-sm font-body font-medium text-purple-600 hover:text-purple-800"
                             >
                                 Library
                             </button>
@@ -39,7 +39,7 @@ const Header = () => {
                         
                         <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-50">
                             <User className="w-5 h-5 text-purple-500" />
-                            <span className="text-sm font-medium text-purple-700">
+                            <span className="text-sm font-body font-medium text-purple-700">
                                 {user?.username}
                                 {!isAuthenticated && " (Guest)"}
                             </span>

@@ -102,8 +102,8 @@ const StoryLibrary = () => {
             {stories.length === 0 ? (
                 <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16">
                     <BookOpen className="w-16 h-16 text-purple-300 mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold text-gray-600 mb-2">No Stories Yet</h3>
-                    <p className="text-gray-500">
+                    <h3 className="text-2xl font-heading font-bold text-gray-600 mb-2">No Stories Yet</h3>
+                    <p className="text-gray-500 font-body">
                         {Cookies.get('userToken') || user.token ? 
                             "You haven't created any stories yet. Try generating a new story!" :
                             "Guest users can't save stories. Log in to create and save your magical tales!"}
@@ -125,11 +125,11 @@ const StoryLibrary = () => {
                                 )}
                             </div>
                             <div className="p-4">
-                                <h3 className="text-xl font-bold text-gray-800 mb-2">{story.title}</h3>
-                                <p className="text-gray-600 text-sm">
+                                <h3 className="text-xl font-heading font-bold text-gray-800 mb-2">{story.title}</h3>
+                                <p className="text-gray-600 font-body text-sm">
                                     Created on {new Date(story.createdAt).toLocaleDateString()}
                                 </p>
-                                <p className="text-purple-600 font-semibold mt-2">
+                                <p className="text-purple-600 font-body font-semibold mt-2">
                                     {story.pages.length} pages
                                 </p>
                             </div>

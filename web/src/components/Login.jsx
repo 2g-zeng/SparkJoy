@@ -41,8 +41,8 @@ const Login = () => {
                     <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4 animate-bounce">
                         <Book className="w-10 h-10 text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold text-gray-800 mb-2">Magic Storybook</h1>
-                    <p className="text-gray-600">Enter your name to start creating stories!</p>
+                    <h1 className="text-4xl font-heading font-bold text-gray-800 mb-2">Magic Storybook</h1>
+                    <p className="text-gray-600 font-body">Enter your name to start creating stories!</p>
                 </div>
                 <div className="space-y-4">
                     <div>
@@ -52,7 +52,7 @@ const Login = () => {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             onKeyDown={handleKeyPress}
-                            className="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors"
+                            className="w-full px-4 py-3 text-lg font-body border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors"
                         />
                     </div>
                     <div>
@@ -62,7 +62,7 @@ const Login = () => {
                             value={magicNumber}
                             onChange={(e) => setMagicNumber(e.target.value)}
                             onKeyDown={handleKeyPress}
-                            className="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors"                        />
+                            className="w-full px-4 py-3 text-lg font-body border-2 border-purple-300 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors"                        />
                     </div>
                     {error && (
                         <div className="text-red-500 text-sm font-semibold text-center p-2 bg-red-50 rounded-lg">
@@ -71,7 +71,7 @@ const Login = () => {
                     )}
                     <button
                         onClick={handleLogin}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-body font-bold py-3 px-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                         Start Creating! ✨
                     </button>
@@ -85,7 +85,7 @@ const Login = () => {
                                 navigate('/create');
                             }, 500);
                         }}
-                        className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white font-bold py-3 px-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                        className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white font-body font-bold py-3 px-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                         Continue as Guest 🌟
                     </button>

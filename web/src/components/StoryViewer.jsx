@@ -41,14 +41,14 @@ const Page = React.forwardRef((props, ref) => {
                             {isCover ? (
                                 <div className="h-full p-8 flex flex-col justify-between">
                                     <div className="text-center">
-                                        <h1 className="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                                        <h1 className="text-3xl md:text-5xl font-heading font-bold text-gray-800 mb-6">
                                             {pageData.title}
                                         </h1>
                                         <div className="w-36 h-36 md:w-48 md:h-48 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg">
                                             <Sparkles className="w-20 h-20 md:w-24 md:h-24 text-purple-500" />
                                         </div>
                                     </div>
-                                    <p className="text-center text-gray-700 font-medium">
+                                    <p className="text-center text-story text-gray-700 font-medium">
                                         A Magical Story
                                     </p>
                                 </div>
@@ -56,7 +56,7 @@ const Page = React.forwardRef((props, ref) => {
                                 // Back cover with "End" text
                                 <div className="h-full flex items-center justify-center bg-white relative">
                                     <div className="text-center">
-                                        <h2 className="text-4xl md:text-6xl font-bold text-gray-400">The End</h2>
+                                        <h2 className="text-4xl md:text-6xl font-heading font-bold text-gray-400">The End</h2>
                                         <div className="mt-8 w-20 h-20 md:w-24 md:h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center shadow-md">
                                             <Sparkles className="w-12 h-12 text-gray-300" />
                                         </div>
@@ -81,7 +81,7 @@ const Page = React.forwardRef((props, ref) => {
                              style={{ borderTop: '1px solid #eaeaea', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'52\' height=\'26\' viewBox=\'0 0 52 26\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23f0f0f0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z\' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}>
                             {!isCover && !isBackCover && pageData.text && (
                                 <div className="bg-white rounded-md p-2 shadow-sm h-full w-full flex items-center book-text overflow-hidden">
-                                    <p className="text-gray-800 text-sm font-medium leading-tight line-clamp-2">
+                                    <p className="text-story text-gray-800 text-sm font-medium leading-tight line-clamp-2">
                                         {pageData.text}
                                     </p>
                                 </div>
@@ -89,17 +89,17 @@ const Page = React.forwardRef((props, ref) => {
                             {isCover && (
                                 <div className="bg-white rounded-md p-2 shadow-sm h-full w-full flex items-center justify-center">
                                     <div className="text-center">
-                                        <h2 className="text-lg font-bold text-gray-800">
+                                        <h2 className="text-lg font-heading font-bold text-gray-800">
                                             {pageData.title}
                                         </h2>
-                                        <p className="text-xs text-gray-600 mt-1">By SparkJoy AI</p>
+                                        <p className="text-xs font-body text-gray-600 mt-1">By SparkJoy AI</p>
                                     </div>
                                 </div>
                             )}
                             {isBackCover && (
                                 <div className="bg-white rounded-md p-2 shadow-sm h-full w-full flex items-center justify-center">
                                     <div className="text-center">
-                                        <p className="text-gray-500 text-sm italic">Thank you for reading!</p>
+                                        <p className="text-story text-gray-500 text-sm italic">Thank you for reading!</p>
                                     </div>
                                 </div>
                             )}
@@ -439,7 +439,7 @@ const StoryViewer = () => {
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h1 className="text-white font-bold text-xl md:text-2xl truncate">
+                    <h1 className="text-white font-heading font-bold text-xl md:text-2xl truncate">
                         {story?.title}
                     </h1>
                 </div>
@@ -493,7 +493,7 @@ const StoryViewer = () => {
                             </div>
                             <Sparkles className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-purple-500" />
                         </div>
-                        <p className="text-gray-500 text-sm animate-pulse">Loading your magical storybook...</p>
+                        <p className="text-gray-500 text-sm font-story animate-pulse">Loading your magical storybook...</p>
                     </div>
                 )}
                 {/* Left navigation button */}
@@ -603,7 +603,7 @@ const StoryViewer = () => {
                 <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onClick={() => setShowHelp(false)}>
                     <div className="bg-white rounded-lg p-6 max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-gray-800">Keyboard Shortcuts</h2>
+                            <h2 className="text-xl font-heading font-bold text-gray-800">Keyboard Shortcuts</h2>
                             <button 
                                 onClick={() => setShowHelp(false)}
                                 className="text-gray-500 hover:text-gray-700"
@@ -612,7 +612,7 @@ const StoryViewer = () => {
                             </button>
                         </div>
                         
-                        <div className="space-y-3 text-sm">
+                        <div className="space-y-3 text-sm font-body">
                             <div className="flex justify-between">
                                 <span className="font-medium">Turn page forward</span>
                                 <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded shadow-sm">→</kbd>
@@ -637,7 +637,7 @@ const StoryViewer = () => {
                         
                         <button 
                             onClick={() => setShowHelp(false)}
-                            className="mt-6 w-full py-2 bg-[#22B8EA] text-white rounded-lg hover:bg-blue-500 transition-colors"
+                            className="mt-6 w-full py-2 bg-[#22B8EA] text-white font-body rounded-lg hover:bg-blue-500 transition-colors"
                         >
                             Close
                         </button>
